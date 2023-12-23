@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taxi_driver/common/color_extension.dart';
 import 'package:taxi_driver/common_widget/setting_row.dart';
-import 'package:taxi_driver/view/menu/edit_profile_view.dart';
+import 'package:taxi_driver/view/login/bank_detail_view.dart';
 import 'package:taxi_driver/view/menu/my_profile_view.dart';
 import 'package:taxi_driver/view/menu/my_vehicle_view.dart';
 
@@ -67,7 +67,9 @@ class _SettingsViewState extends State<SettingsView> {
             SettingRow(
                 title: "Bank details",
                 icon: "assets/img/sm_bank.png",
-                onPressed: () {}),
+                onPressed: () {
+                  context.push(const BankDetailView());
+                }),
             SettingRow(
                 title: "Change Password",
                 icon: "assets/img/sm_password.png",

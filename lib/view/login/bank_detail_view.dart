@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:taxi_driver/common/color_extension.dart';
+import 'package:taxi_driver/common/common_extension.dart';
+import 'package:taxi_driver/common/globs.dart';
+import 'package:taxi_driver/common/service_call.dart';
 import 'package:taxi_driver/common_widget/line_text_field.dart';
 import 'package:taxi_driver/common_widget/round_button.dart';
 import 'package:taxi_driver/view/login/document_upload_view.dart';
@@ -12,12 +15,17 @@ class BankDetailView extends StatefulWidget {
 }
 
 class _BankDetailViewState extends State<BankDetailView> {
-  
   TextEditingController txtBankName = TextEditingController();
   TextEditingController txtAccountHolderName = TextEditingController();
   TextEditingController txtAccountNumber = TextEditingController();
   TextEditingController txtSwiftCode = TextEditingController();
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getBankDetail();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,12 +45,12 @@ class _BankDetailViewState extends State<BankDetailView> {
         ),
         centerTitle: true,
         title: Text(
-                "Bank Details",
-                style: TextStyle(
-                    color: TColor.primaryText,
-                    fontSize: 25,
-                    fontWeight: FontWeight.w800),
-              ),
+          "Bank Details",
+          style: TextStyle(
+              color: TColor.primaryText,
+              fontSize: 25,
+              fontWeight: FontWeight.w800),
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -50,7 +58,6 @@ class _BankDetailViewState extends State<BankDetailView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              
               const SizedBox(
                 height: 30,
               ),
@@ -82,7 +89,6 @@ class _BankDetailViewState extends State<BankDetailView> {
                 title: "Swift/IFSC Code",
                 hintText: "YT123C",
                 controller: txtSwiftCode,
-                
               ),
               const SizedBox(
                 height: 8,
@@ -130,7 +136,8 @@ class _BankDetailViewState extends State<BankDetailView> {
               ),
               RoundButton(
                 onPressed: () {
-                  context.push(const DocumentUploadView(title: "Personal Document" ),);
+                  updateAction();
+                  // context.push(const DocumentUploadView(title: "Personal Document" ),);
                 },
                 title: "NEXT",
               ),
@@ -139,5 +146,82 @@ class _BankDetailViewState extends State<BankDetailView> {
         ),
       ),
     );
+  }
+
+  //TODO: Button Action
+
+  void updateAction() {
+    if (txtBankName.text.isEmpty) {
+      mdShowAlert("Error", "Please enter bank name", () {});
+      return;
+    }
+
+    if (txtAccountHolderName.text.isEmpty) {
+      mdShowAlert("Error", "Please enter account holder name", () {});
+      return;
+    }
+
+     if (txtAccountNumber.text.isEmpty) {
+      mdShowAlert("Error", "Please enter account number", () {});
+      return;
+    }
+
+    if (txtSwiftCode.text.isEmpty) {
+      mdShowAlert("Error", "Please enter Bank Swift/IFSC Code", () {});
+      return;
+    }
+
+    endEditing();
+
+    updateBankDetail({
+      "account_name": txtAccountHolderName.text,
+      "ifsc": txtSwiftCode.text,
+      "account_no": txtAccountNumber.text,
+      "bank_name": txtBankName.text,
+    });
+  }
+
+  //TODO:Service Call
+  void getBankDetail() {
+    Globs.showHUD();
+    ServiceCall.post({}, SVKey.svBankDetail, isTokenApi: true,
+        withSuccess: (responseObj) async {
+      Globs.hideHUD();
+
+      if (responseObj[KKey.status] == "1") {
+        var payload = responseObj[KKey.payload] as Map? ?? {};
+        setState(() {
+          txtAccountHolderName.text = payload["account_name"] as String? ?? "";
+          txtAccountNumber.text = payload["account_no"] as String? ?? "";
+          txtBankName.text = payload["bank_name"] as String? ?? "";
+          txtSwiftCode.text = payload["bsb"] as String? ?? "";
+        });
+      } else {
+        mdShowAlert(
+            "Error", responseObj[KKey.message] as String? ?? MSG.fail, () {});
+      }
+    }, failure: (err) async {
+      Globs.hideHUD();
+      mdShowAlert("Error", err, () {});
+    });
+  }
+
+  void updateBankDetail(Map<String, dynamic> parameter) {
+    Globs.showHUD();
+    ServiceCall.post(parameter, SVKey.svDriverBankDetailUpdate, isTokenApi: true,
+        withSuccess: (responseObj) async {
+      Globs.hideHUD();
+
+      if (responseObj[KKey.status] == "1") {
+        mdShowAlert("Success",
+            responseObj[KKey.message] as String? ?? MSG.success, () {});
+      } else {
+        mdShowAlert(
+            "Error", responseObj[KKey.message] as String? ?? MSG.fail, () {});
+      }
+    }, failure: (err) async {
+      Globs.hideHUD();
+      mdShowAlert("Error", err, () {});
+    });
   }
 }

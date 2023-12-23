@@ -1,4 +1,4 @@
-package com.codeforany.taxi_driver
+package com.codeforany.taxidriver
 
 import io.flutter.embedding.android.FlutterActivity
 

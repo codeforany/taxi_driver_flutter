@@ -1,0 +1,118 @@
+{
+  "project_info": {
+    "project_number": "442094658019",
+    "project_id": "codeforany-80c1e",
+    "storage_bucket": "codeforany-80c1e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:442094658019:android:9cb0b5b052bdb3f9fd00d6",
+        "android_client_info": {
+          "package_name": "com.codeforany.push_notification_demo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "442094658019-7j17subch89hif2e5bj3b82r46a1s9tb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfcYBkks0IHg0bZ3PxSWaydBdGJ7qZq_Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "442094658019-7j17subch89hif2e5bj3b82r46a1s9tb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "442094658019-2iu8tv96jmspf3je6c8r6l1i3m63preo.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.codeforany.pushNotificationDemo"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:442094658019:android:518a130eb1bba54efd00d6",
+        "android_client_info": {
+          "package_name": "com.codeforany.socket_io_demo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "442094658019-7j17subch89hif2e5bj3b82r46a1s9tb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfcYBkks0IHg0bZ3PxSWaydBdGJ7qZq_Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "442094658019-7j17subch89hif2e5bj3b82r46a1s9tb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "442094658019-2iu8tv96jmspf3je6c8r6l1i3m63preo.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.codeforany.pushNotificationDemo"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:442094658019:android:70109d59f12db630fd00d6",
+        "android_client_info": {
+          "package_name": "com.codeforany.taxidriver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "442094658019-7j17subch89hif2e5bj3b82r46a1s9tb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfcYBkks0IHg0bZ3PxSWaydBdGJ7qZq_Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "442094658019-7j17subch89hif2e5bj3b82r46a1s9tb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "442094658019-2iu8tv96jmspf3je6c8r6l1i3m63preo.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.codeforany.pushNotificationDemo"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

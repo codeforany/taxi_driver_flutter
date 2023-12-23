@@ -147,7 +147,7 @@ class _MobileNumberViewState extends State<MobileNumberView> {
             ),
             RoundButton(
               onPressed: () {
-                context.push( const OTPView(number: "9876543210", code: "+91") );
+                context.push(  OTPView(number: txtMobile.text, code: countryCode.dialCode) );
               },
               title: "CONTINUE",
             )

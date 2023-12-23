@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:taxi_driver/common/color_extension.dart';
 import 'package:taxi_driver/common_widget/round_button.dart';
 import 'package:taxi_driver/view/login/mobile_number_view.dart';
-import 'package:taxi_driver/view/login/sign_in_view.dart';
-import 'package:taxi_driver/view/login/sign_up_view.dart';
 
 class WelcomeView extends StatefulWidget {
   const WelcomeView({super.key});
@@ -42,24 +40,24 @@ class _WelcomeViewState extends State<WelcomeView> {
 
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: RoundButton(title: "SIGN IN", onPressed: (){
-                    context.push( const SignInView() );
+                  child: RoundButton(title: "Get Start", onPressed: (){
+                    context.push( const MobileNumberView() );
                   }, ),
                 ),
 
 
-                TextButton(
-                  onPressed: () {
-                     context.push(const SignUpView());
-                  },
-                  child: Text(
-                    "SIGN UP",
-                    style: TextStyle(
-                      color: TColor.primaryTextW,
-                      fontSize: 16,
-                    ),
-                  ),
-                )
+                // TextButton(
+                //   onPressed: () {
+                //      context.push(const SignUpView());
+                //   },
+                //   child: Text(
+                //     "SIGN UP",
+                //     style: TextStyle(
+                //       color: TColor.primaryTextW,
+                //       fontSize: 16,
+                //     ),
+                //   ),
+                // )
               ],
             ),
           )
