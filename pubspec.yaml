@@ -55,6 +55,8 @@ dependencies:
   equatable: ^2.0.5
   image_picker: ^1.0.5
   flutter_slidable: ^3.0.1
+  socket_io_client: ^2.0.3+1
+  bubble: ^1.2.1
 
 dev_dependencies:
   flutter_test:

@@ -8,6 +8,7 @@ import 'package:taxi_driver/common/color_extension.dart';
 import 'package:taxi_driver/common/globs.dart';
 import 'package:taxi_driver/common/my_http_overrides.dart';
 import 'package:taxi_driver/common/service_call.dart';
+import 'package:taxi_driver/common/socket_manager.dart';
 import 'package:taxi_driver/cubit/login_cubit.dart';
 import 'package:taxi_driver/view/login/splash_view.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -23,6 +24,7 @@ void main() async {
     ServiceCall.userObj = Globs.udValue(Globs.userPayload) as Map? ?? {};
     ServiceCall.userType = ServiceCall.userObj["user_type"] as int? ?? 1;
   }
+  SocketManager.shared.initSocket();
 
   runApp(const MyApp());
   configLoading();

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taxi_driver/common/color_extension.dart';
 import 'package:taxi_driver/common_widget/setting_row.dart';
+import 'package:taxi_driver/view/home/support/support_list_view.dart';
 import 'package:taxi_driver/view/login/bank_detail_view.dart';
 import 'package:taxi_driver/view/menu/my_profile_view.dart';
 import 'package:taxi_driver/view/menu/my_vehicle_view.dart';
@@ -104,6 +105,12 @@ class _SettingsViewState extends State<SettingsView> {
                 title: "Contact us",
                 icon: "assets/img/sm_profile.png",
                 onPressed: () {}),
+            SettingRow(
+                title: "Supports",
+                icon: "assets/img/sm_profile.png",
+                onPressed: () {
+                  context.push( const SupportListView() );
+                }),
           ],
         ),
       ),
