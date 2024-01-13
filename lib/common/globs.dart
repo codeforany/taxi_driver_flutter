@@ -99,6 +99,11 @@ class SVKey {
 
     static const svDeleteCar = "${baseUrl}car_delete";
     static const svSetRunningCar = "${baseUrl}set_running_car";
+
+    static const svSupportList = "${baseUrl}support_user_list";
+    static const svSupportConnect = "${baseUrl}support_connect";
+    static const svSupportSendMessage = "${baseUrl}support_message";
+    static const svSupportClear = "${baseUrl}support_clear";
 }
 
 class KKey {

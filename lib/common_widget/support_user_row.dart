@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:taxi_driver/common/color_extension.dart';
+import 'package:taxi_driver/common/common_extension.dart';
 
 class SupportUserRow extends StatelessWidget {
+  final Map uObj;
   final VoidCallback onPressed;
-  const SupportUserRow({super.key, required this.onPressed});
+  const SupportUserRow(
+      {super.key, required this.uObj, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -30,19 +33,20 @@ class SupportUserRow extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      "User1",
+                      uObj["name"] as String? ?? "",
                       style: TextStyle(
-                          color: TColor.primaryText, fontWeight: FontWeight.w700),
+                          color: TColor.primaryText,
+                          fontWeight: FontWeight.w700),
                     ),
                   ),
                   Text(
-                    "1 min ago",
+                    (uObj["created_date"] as String? ?? "" ).timeAgo(),
                     style: TextStyle(color: TColor.secondaryText, fontSize: 13),
                   )
                 ],
               ),
               Text(
-                "Hi, Hello Welcome",
+                uObj["message"] as String? ?? "",
                 style: TextStyle(color: TColor.secondaryText, fontSize: 14),
               )
             ],

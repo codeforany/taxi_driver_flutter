@@ -1,15 +1,44 @@
 import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:taxi_driver/common/color_extension.dart';
+import 'package:taxi_driver/common/common_extension.dart';
+import 'package:taxi_driver/common/globs.dart';
+import 'package:taxi_driver/common/service_call.dart';
+import 'package:taxi_driver/common/socket_manager.dart';
 
 class SupportMessageView extends StatefulWidget {
-  const SupportMessageView({super.key});
+  final Map uObj;
+  const SupportMessageView({super.key, required this.uObj});
 
   @override
   State<SupportMessageView> createState() => _SupportMessageViewState();
 }
 
 class _SupportMessageViewState extends State<SupportMessageView> {
+  TextEditingController txtMessage = TextEditingController();
+  List listArr = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getMessageList();
+
+    // Received Message In Socket On Event
+    SocketManager.shared.socket?.on("support_message", (data) {
+      print("support_message socket get :${data.toString()} ");
+      if (data[KKey.status] == "1") {
+        var mObj = data[KKey.payload] as List? ?? [];
+        if (mObj[0]["sender_id"] == widget.uObj["user_id"]) {
+          listArr.add(mObj[0]);
+          if (mounted) {
+            setState(() {});
+          }
+        }
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,7 +84,10 @@ class _SupportMessageViewState extends State<SupportMessageView> {
       body: ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         itemBuilder: (context, index) {
-          var isSendMessage = index % 2 == 0;
+          var mObj = listArr[index] as Map? ?? {};
+
+          var isSendMessage =
+              ServiceCall.userObj["user_id"] == mObj["sender_id"];
           return Column(
             children: [
               Bubble(
@@ -66,7 +98,7 @@ class _SupportMessageViewState extends State<SupportMessageView> {
                 elevation: 0,
                 color: Colors.transparent,
                 child: Text(
-                  "7:00 pm",
+                  (mObj["created_date"] as String? ?? "").timeAgo(),
                   style: TextStyle(
                     fontWeight: FontWeight.w300,
                     fontSize: 13,
@@ -88,10 +120,12 @@ class _SupportMessageViewState extends State<SupportMessageView> {
                   color:
                       isSendMessage ? TColor.primary : const Color(0xffF6F6F6),
                   child: Text(
-                    " Hello World ",
+                    mObj[KKey.message] as String? ?? "",
                     style: TextStyle(
                       fontSize: 17,
-                      color: isSendMessage ? TColor.primaryTextW : TColor.primaryText,
+                      color: isSendMessage
+                          ? TColor.primaryTextW
+                          : TColor.primaryText,
                       fontWeight: FontWeight.w500,
                     ),
                     textAlign: isSendMessage ? TextAlign.right : TextAlign.left,
@@ -101,7 +135,7 @@ class _SupportMessageViewState extends State<SupportMessageView> {
             ],
           );
         },
-        itemCount: 10,
+        itemCount: listArr.length,
       ),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(color: Colors.white, boxShadow: [
@@ -138,7 +172,9 @@ class _SupportMessageViewState extends State<SupportMessageView> {
                         constraints: const BoxConstraints(
                           maxHeight: 100.0,
                         ),
+                      
                         child: TextField(
+                          controller: txtMessage,
                           maxLines: null,
                           autocorrect: false,
                           decoration: InputDecoration(
@@ -159,7 +195,9 @@ class _SupportMessageViewState extends State<SupportMessageView> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        sendMessageAction();
+                      },
                       child: Icon(
                         Icons.send,
                         size: 25,
@@ -174,5 +212,64 @@ class _SupportMessageViewState extends State<SupportMessageView> {
         ),
       ),
     );
+  }
+
+  //TODO: Action
+  void sendMessageAction() {
+    if (txtMessage.text.isEmpty) {
+      return;
+    }
+
+    sendMessageApi({
+      "receiver_id": widget.uObj["user_id"].toString(),
+      "message": txtMessage.text,
+      "socket_id": SocketManager.shared.socket?.id ?? ""
+    });
+  }
+
+  //TODO: ApiCalling
+
+  void getMessageList() {
+    Globs.showHUD();
+    ServiceCall.post({
+      "user_id": widget.uObj["user_id"].toString(),
+      "socket_id": SocketManager.shared.socket?.id ?? ""},
+        SVKey.svSupportConnect, isTokenApi: true,
+        withSuccess: (responseObj) async {
+      Globs.hideHUD();
+      if (responseObj[KKey.status] == "1") {
+        var payloadObj = responseObj[KKey.payload] as Map? ?? {};
+        listArr = payloadObj["messages"] as List? ?? [];
+        if (mounted) {
+          setState(() {});
+        }
+      } else {
+        mdShowAlert(Globs.appName,
+            responseObj[KKey.message] as String? ?? MSG.fail, () {});
+      }
+    }, failure: (error) async {
+      Globs.hideHUD();
+      mdShowAlert(Globs.appName, error as String? ?? MSG.fail, () {});
+    });
+  }
+
+  void sendMessageApi(Map<String, String> parameter) {
+    ServiceCall.post(parameter, SVKey.svSupportSendMessage, isTokenApi: true,
+        withSuccess: (responseObj) async {
+     
+      if (responseObj[KKey.status] == "1") {
+        listArr.add(responseObj[KKey.payload] as Map? ?? {});
+        txtMessage.text = "";
+        if (mounted) {
+          setState(() {});
+        }
+      } else {
+        mdShowAlert(Globs.appName,
+            responseObj[KKey.message] as String? ?? MSG.fail, () {});
+      }
+    }, failure: (error) async {
+     
+      mdShowAlert(Globs.appName, error as String? ?? MSG.fail, () {});
+    });
   }
 }

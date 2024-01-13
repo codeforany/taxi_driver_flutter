@@ -57,6 +57,7 @@ dependencies:
   flutter_slidable: ^3.0.1
   socket_io_client: ^2.0.3+1
   bubble: ^1.2.1
+  timeago: ^3.6.0
 
 dev_dependencies:
   flutter_test:
