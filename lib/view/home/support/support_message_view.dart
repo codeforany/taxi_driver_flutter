@@ -80,6 +80,21 @@ class _SupportMessageViewState extends State<SupportMessageView> {
             )
           ],
         ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              clearMessageAction();
+            },
+            child: Text(
+              "Clear All",
+              style: TextStyle(
+                color: TColor.primary,
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          )
+        ],
       ),
       body: ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
@@ -172,7 +187,6 @@ class _SupportMessageViewState extends State<SupportMessageView> {
                         constraints: const BoxConstraints(
                           maxHeight: 100.0,
                         ),
-                      
                         child: TextField(
                           controller: txtMessage,
                           maxLines: null,
@@ -227,14 +241,18 @@ class _SupportMessageViewState extends State<SupportMessageView> {
     });
   }
 
+  void clearMessageAction(){
+    clearMessageApi({"receiver_id" : widget.uObj["user_id"].toString() });
+  }
+
   //TODO: ApiCalling
 
   void getMessageList() {
     Globs.showHUD();
     ServiceCall.post({
       "user_id": widget.uObj["user_id"].toString(),
-      "socket_id": SocketManager.shared.socket?.id ?? ""},
-        SVKey.svSupportConnect, isTokenApi: true,
+      "socket_id": SocketManager.shared.socket?.id ?? ""
+    }, SVKey.svSupportConnect, isTokenApi: true,
         withSuccess: (responseObj) async {
       Globs.hideHUD();
       if (responseObj[KKey.status] == "1") {
@@ -256,7 +274,6 @@ class _SupportMessageViewState extends State<SupportMessageView> {
   void sendMessageApi(Map<String, String> parameter) {
     ServiceCall.post(parameter, SVKey.svSupportSendMessage, isTokenApi: true,
         withSuccess: (responseObj) async {
-     
       if (responseObj[KKey.status] == "1") {
         listArr.add(responseObj[KKey.payload] as Map? ?? {});
         txtMessage.text = "";
@@ -268,7 +285,23 @@ class _SupportMessageViewState extends State<SupportMessageView> {
             responseObj[KKey.message] as String? ?? MSG.fail, () {});
       }
     }, failure: (error) async {
-     
+      mdShowAlert(Globs.appName, error as String? ?? MSG.fail, () {});
+    });
+  }
+
+  void clearMessageApi(Map<String, String> parameter) {
+    ServiceCall.post(parameter, SVKey.svSupportClear, isTokenApi: true,
+        withSuccess: (responseObj) async {
+      if (responseObj[KKey.status] == "1") {
+        listArr = [];
+        if (mounted) {
+          setState(() {});
+        }
+      } else {
+        mdShowAlert(Globs.appName,
+            responseObj[KKey.message] as String? ?? MSG.fail, () {});
+      }
+    }, failure: (error) async {
       mdShowAlert(Globs.appName, error as String? ?? MSG.fail, () {});
     });
   }

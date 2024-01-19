@@ -22,6 +22,44 @@ class _SupportListViewState extends State<SupportListView> {
     // TODO: implement initState
     super.initState();
     getList();
+
+    // Received Message In Socket On Event
+    SocketManager.shared.socket?.on("support_message", (data) {
+      print("support_message socket get :${data.toString()} ");
+      if (data[KKey.status] == "1") {
+        var mObj = data[KKey.payload] as List? ?? [];
+        var senderUserObj = data["user_info"] as Map? ?? {};
+        Map? userObj;
+        var senderId = mObj[0]["sender_id"];
+        var userExits = false;
+        for (var uObj in listArr) {
+          if (senderId == uObj["user_id"]) {
+            uObj["message"] = mObj[0]["message"];
+            uObj["message_type"] = mObj[0]["message_type"];
+            uObj["created_date"] = mObj[0]["created_date"];
+            uObj["base_count"] = (uObj["base_count"] as int? ?? 0) + 1;
+            userExits = true;
+            userObj = uObj;
+            break;
+          }
+        }
+
+        if (!userExits) {
+          senderUserObj["message"] = mObj[0]["message"];
+          senderUserObj["message_type"] = mObj[0]["message_type"];
+          senderUserObj["created_date"] = mObj[0]["created_date"];
+          senderUserObj["base_count"] = 1;
+          listArr.insert(0, senderUserObj);
+        }else{
+          listArr.remove(userObj);
+          listArr.insert(0, userObj);
+        }
+
+        if (mounted) {
+          setState(() {});
+        }
+      }
+    });
   }
 
   @override
@@ -51,8 +89,8 @@ class _SupportListViewState extends State<SupportListView> {
           ),
         ),
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+      body: ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
         itemBuilder: (context, index) {
           var uObj = listArr[index] as Map? ?? {};
 
@@ -66,10 +104,8 @@ class _SupportListViewState extends State<SupportListView> {
             },
           );
         },
-        separatorBuilder: (context, index) => Container(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: const Divider(),
-        ),
+        
+        
         itemCount: listArr.length,
       ),
     );

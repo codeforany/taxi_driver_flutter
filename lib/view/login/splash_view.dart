@@ -6,6 +6,7 @@ import 'package:taxi_driver/common/service_call.dart';
 import 'package:taxi_driver/view/home/home_view.dart';
 import 'package:taxi_driver/view/login/change_language_view.dart';
 import 'package:taxi_driver/view/login/profile_image_view.dart';
+import 'package:taxi_driver/view/user/user_home_view.dart';
 
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
@@ -29,14 +30,21 @@ class _SplashViewState extends State<SplashView> {
   }
 
   void loadNextScreen() {
-
     if (Globs.udValueBool(Globs.userLogin)) {
-      context.push(const HomeView() );
-    }else{
+      if (ServiceCall.userType == 2) {
+        //Driver Login
+        if (ServiceCall.userObj[KKey.status] == 1) {
+          context.push(const HomeView());
+        } else {
+          context.push(const ProfileImageView());
+        }
+      } else {
+        //User Login
+        context.push(const UserHomeView());
+      }
+    } else {
       context.push(const ChangeLanguageView());
     }
-
-    
   }
 
   @override

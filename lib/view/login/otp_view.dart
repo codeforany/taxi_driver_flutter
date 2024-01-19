@@ -6,9 +6,12 @@ import 'package:otp_timer_button/otp_timer_button.dart';
 import 'package:taxi_driver/common/color_extension.dart';
 import 'package:taxi_driver/common/common_extension.dart';
 import 'package:taxi_driver/common/globs.dart';
+import 'package:taxi_driver/common/service_call.dart';
 import 'package:taxi_driver/common_widget/round_button.dart';
 import 'package:taxi_driver/cubit/login_cubit.dart';
+import 'package:taxi_driver/view/home/home_view.dart';
 import 'package:taxi_driver/view/login/profile_image_view.dart';
+import 'package:taxi_driver/view/user/user_home_view.dart';
 
 class OTPView extends StatefulWidget {
   final String number;
@@ -71,7 +74,7 @@ class _OTPViewState extends State<OTPView> {
       final User? user = (await auth.signInWithCredential(credential)).user;
 
       if (user != null) {
-        submitApiData( user.uid);
+        submitApiData(user.uid);
       } else {
         mdShowAlert("Fail", "invalid otp", () {});
       }
@@ -99,17 +102,26 @@ class _OTPViewState extends State<OTPView> {
         listener: (context, state) {
           // TODO: LoginState implement listener
 
-          if(state is LoginHUDState) {
+          if (state is LoginHUDState) {
             Globs.showHUD();
-          }else if(state is LoginApiResultState) {
+          } else if (state is LoginApiResultState) {
             Globs.hideHUD();
+
             mdShowAlert(
                 "Success", "Successfully signed in api calling done", () {});
-                context.push( const ProfileImageView()  );
-          }else if (state is LoginErrorState) {
-             Globs.hideHUD();
-            mdShowAlert(
-                "Fail", state.errorMSG, () {});
+
+            if (ServiceCall.userType == 1) {
+              context.push(const UserHomeView());
+            } else {
+              if (ServiceCall.userObj[KKey.status] == 1) {
+                context.push(const HomeView());
+              } else {
+                context.push(const ProfileImageView());
+              }
+            }
+          } else if (state is LoginErrorState) {
+            Globs.hideHUD();
+            mdShowAlert("Fail", state.errorMSG, () {});
           }
         },
         builder: (context, state) {
@@ -218,8 +230,7 @@ class _OTPViewState extends State<OTPView> {
     );
   }
 
-
-  void submitApiData (String uid) {
-    context.read<LoginCubit>().submitLogin(widget.code, widget.number, "2");
+  void submitApiData(String uid) {
+    context.read<LoginCubit>().submitLogin(widget.code, widget.number, "1");
   }
 }
