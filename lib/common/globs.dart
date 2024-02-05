@@ -104,6 +104,10 @@ class SVKey {
     static const svSupportConnect = "${baseUrl}support_connect";
     static const svSupportSendMessage = "${baseUrl}support_message";
     static const svSupportClear = "${baseUrl}support_clear";
+
+    static const svStaticData = "${baseUrl}static_data";
+
+    static const svBookingRequest = "${baseUrl}booking_request";
 }
 
 class KKey {

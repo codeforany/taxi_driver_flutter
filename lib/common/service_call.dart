@@ -3,6 +3,14 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as pth;
+import 'package:sqflite/sqflite.dart';
+import 'package:taxi_driver/common/db_helper.dart';
+import 'package:taxi_driver/common/globs.dart';
+import 'package:taxi_driver/model/document_model.dart';
+import 'package:taxi_driver/model/price_detail_mode.dart';
+import 'package:taxi_driver/model/service_detail_model.dart';
+import 'package:taxi_driver/model/zone_document_model.dart';
+import 'package:taxi_driver/model/zone_list_model.dart';
 
 typedef ResSuccess = Future<void> Function(Map<String, dynamic>);
 typedef ResFailure = Future<void> Function(dynamic);
@@ -10,7 +18,7 @@ typedef ResFailure = Future<void> Function(dynamic);
 class ServiceCall {
   static Map userObj = {};
   static int userType = 1;
-  
+
   static void post(
     Map<String, dynamic> parameter,
     String path, {
@@ -103,6 +111,61 @@ class ServiceCall {
       } catch (e) {
         if (failure != null) failure(e.toString());
       }
+    });
+  }
+
+  static void getStaticDateApi() {
+    post({"last_call_time":""}, SVKey.svStaticData, withSuccess: (responseObj) async {
+      try {
+        if (responseObj[KKey.status] == "1") {
+          var payload = responseObj[KKey.payload] as Map? ?? {};
+
+          var db = await DBHelper.shared().db;
+
+          var batch = db?.batch();
+
+          for (var zObj in (payload["zone_list"] as List? ?? [])) {
+            batch?.insert(DBHelper.tbZoneList, ZoneListModel.map(zObj).toMap(),
+                conflictAlgorithm: ConflictAlgorithm.replace);
+          }
+
+          for (var sObj in (payload["service_detail"] as List? ?? [])) {
+            batch?.insert(
+                DBHelper.tbServiceDetail, ServiceDetailModel.map(sObj).toMap(),
+                conflictAlgorithm: ConflictAlgorithm.replace);
+          }
+
+          for (var pObj in (payload["price_detail"] as List? ?? [])) {
+            batch?.insert(
+                DBHelper.tbPriceDetail, PriceDetailModel.map(pObj).toMap(),
+                conflictAlgorithm: ConflictAlgorithm.replace);
+          }
+
+          for (var dObj in (payload["document"] as List? ?? [])) {
+            batch?.insert(
+                DBHelper.tbDocument, DocumentModel.map(dObj).toMap(),
+                conflictAlgorithm: ConflictAlgorithm.replace);
+          }
+
+           for (var dObj in (payload["zone_document"] as List? ?? [])) {
+            batch?.insert(DBHelper.tbZoneDocument, ZoneDocumentModel.map(dObj).toMap(),
+                conflictAlgorithm: ConflictAlgorithm.replace);
+          } 
+
+         var bResult =  batch?.commit();
+
+         print(bResult);
+
+          debugPrint("Static Save Successfully");
+
+        } else {
+          debugPrint(responseObj.toString());
+        }
+      } catch (e) {
+        debugPrint(e.toString());
+      }
+    }, failure: (err) async {
+      debugPrint(err.toString());
     });
   }
 }

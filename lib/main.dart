@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:taxi_driver/common/color_extension.dart';
+import 'package:taxi_driver/common/db_helper.dart';
 import 'package:taxi_driver/common/globs.dart';
 import 'package:taxi_driver/common/my_http_overrides.dart';
 import 'package:taxi_driver/common/service_call.dart';
@@ -18,6 +19,9 @@ SharedPreferences? prefs;
 void main() async {
   HttpOverrides.global = MyHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
+
+  DBHelper.shared().db;
+
   prefs = await SharedPreferences.getInstance();
   await Firebase.initializeApp();
   if (Globs.udValueBool(Globs.userLogin)) {
@@ -28,6 +32,7 @@ void main() async {
 
   runApp(const MyApp());
   configLoading();
+  ServiceCall.getStaticDateApi();
 }
 
 void configLoading() {

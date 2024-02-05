@@ -67,7 +67,7 @@ class LocationSelectButton extends StatelessWidget {
                   child: Text(
                     value == "" ? placeholder : value,
                     textAlign: TextAlign.left,
-                    maxLines: 2,
+                    maxLines: 1,
                     style: TextStyle(
                       color:
                           value == "" ? TColor.placeholder : TColor.primaryText,

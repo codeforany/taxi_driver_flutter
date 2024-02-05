@@ -22,6 +22,7 @@ class _SplashViewState extends State<SplashView> {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.leanBack);
     super.initState();
     load();
+   
   }
 
   void load() async {
