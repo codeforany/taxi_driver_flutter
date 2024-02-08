@@ -231,6 +231,6 @@ class _OTPViewState extends State<OTPView> {
   }
 
   void submitApiData(String uid) {
-    context.read<LoginCubit>().submitLogin(widget.code, widget.number, "1");
+    context.read<LoginCubit>().submitLogin(widget.code, widget.number, "2");
   }
 }

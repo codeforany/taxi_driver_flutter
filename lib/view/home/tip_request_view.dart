@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:taxi_driver/common/color_extension.dart';
-import 'package:taxi_driver/view/home/run_ride_view.dart';
+import 'package:taxi_driver/common/common_extension.dart';
+import 'package:taxi_driver/common/globs.dart';
+import 'package:taxi_driver/common/service_call.dart';
+// import 'package:taxi_driver/common/socket_manager.dart';
+// import 'package:taxi_driver/view/home/run_ride_view.dart';
 
 class TipRequestView extends StatefulWidget {
-  const TipRequestView({super.key});
+  final Map bObj;
+  const TipRequestView({super.key, required this.bObj});
 
   @override
   State<TipRequestView> createState() => _TipRequestViewState();
@@ -22,8 +27,11 @@ class _TipRequestViewState extends State<TipRequestView> with OSMMixinObserver {
     // TODO: implement initState
     super.initState();
     controller = MapController(
-      initPosition:
-          GeoPoint(latitude: 23.02756018230479, longitude: 72.58131973941731),
+      initPosition: GeoPoint(
+        latitude: double.tryParse(widget.bObj["pickup_lat"].toString()) ?? 0.0,
+        longitude:
+            double.tryParse(widget.bObj["pickup_long"].toString()) ?? 0.0,
+      ),
     );
 
     controller.addObserver(this);
@@ -100,7 +108,7 @@ class _TipRequestViewState extends State<TipRequestView> with OSMMixinObserver {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "25 min",
+                          "${widget.bObj["est_duration"] ?? ""} min",
                           style: TextStyle(
                               color: TColor.primaryText,
                               fontSize: 25,
@@ -115,7 +123,7 @@ class _TipRequestViewState extends State<TipRequestView> with OSMMixinObserver {
                       children: [
                         Expanded(
                           child: Text(
-                            "\$12.50",
+                            "\$${widget.bObj["amt"] ?? ""}",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: TColor.secondaryText,
@@ -125,7 +133,7 @@ class _TipRequestViewState extends State<TipRequestView> with OSMMixinObserver {
                         ),
                         Expanded(
                           child: Text(
-                            "4.5 KM",
+                            "${widget.bObj["est_total_distance"] ?? ""} KM",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: TColor.secondaryText,
@@ -149,7 +157,7 @@ class _TipRequestViewState extends State<TipRequestView> with OSMMixinObserver {
                                   width: 4,
                                 ),
                                 Text(
-                                  "3.5",
+                                  "5",
                                   style: TextStyle(
                                     color: TColor.secondaryText,
                                     fontSize: 18,
@@ -179,11 +187,13 @@ class _TipRequestViewState extends State<TipRequestView> with OSMMixinObserver {
                           const SizedBox(
                             width: 15,
                           ),
-                          Text(
-                            "1 Ash Park, Pembroke Dock, SA72",
-                            style: TextStyle(
-                              color: TColor.primaryText,
-                              fontSize: 15,
+                          Expanded(
+                            child: Text(
+                              "${widget.bObj["pickup_address"] ?? ""}",
+                              style: TextStyle(
+                                color: TColor.primaryText,
+                                fontSize: 15,
+                              ),
                             ),
                           ),
                         ],
@@ -202,11 +212,13 @@ class _TipRequestViewState extends State<TipRequestView> with OSMMixinObserver {
                           const SizedBox(
                             width: 15,
                           ),
-                          Text(
-                            "54 Hollybank Rd, Southampton",
-                            style: TextStyle(
-                              color: TColor.primaryText,
-                              fontSize: 15,
+                          Expanded(
+                            child: Text(
+                              "${widget.bObj["drop_address"] ?? ""}",
+                              style: TextStyle(
+                                color: TColor.primaryText,
+                                fontSize: 15,
+                              ),
                             ),
                           ),
                         ],
@@ -216,8 +228,8 @@ class _TipRequestViewState extends State<TipRequestView> with OSMMixinObserver {
                       height: 15,
                     ),
                     InkWell(
-                      onTap: (){
-                        context.push(const RunRideView() );
+                      onTap: () {
+                        apiAcceptRide();
                       },
                       child: Container(
                         width: double.maxFinite,
@@ -283,7 +295,7 @@ class _TipRequestViewState extends State<TipRequestView> with OSMMixinObserver {
                     children: [
                       InkWell(
                         onTap: () {
-                          context.pop();
+                          apiDeclineRide();
                         },
                         child: Container(
                             padding: const EdgeInsets.symmetric(
@@ -350,25 +362,41 @@ class _TipRequestViewState extends State<TipRequestView> with OSMMixinObserver {
 
     //23.02756018230479, 72.58131973941731
     //23.02726396414328, 72.5851928489523
+    await controller.setStaticPosition([
+      GeoPoint(
+          latitude:
+              double.tryParse(widget.bObj["pickup_lat"].toString()) ?? 0.0,
+          longitude:
+              double.tryParse(widget.bObj["pickup_long"].toString()) ?? 0.0)
+    ], "pickup");
 
-    await controller.setStaticPosition(
-        [GeoPoint(latitude: 23.02756018230479, longitude: 72.58131973941731)],
-        "pickup");
-
-    await controller.setStaticPosition(
-        [GeoPoint(latitude: 23.02726396414328, longitude: 72.5851928489523)],
-        "dropoff");
+    await controller.setStaticPosition([
+      GeoPoint(
+          latitude: double.tryParse(widget.bObj["drop_lat"].toString()) ?? 0.0,
+          longitude:
+              double.tryParse(widget.bObj["drop_long"].toString()) ?? 0.0)
+    ], "dropoff");
 
     loadMapRoad();
   }
 
   void loadMapRoad() async {
     await controller.drawRoad(
-        GeoPoint(latitude: 23.02756018230479, longitude: 72.58131973941731),
-        GeoPoint(latitude: 23.02726396414328, longitude: 72.5851928489523),
+        GeoPoint(
+            latitude:
+                double.tryParse(widget.bObj["pickup_lat"].toString()) ?? 0.0,
+            longitude:
+                double.tryParse(widget.bObj["pickup_long"].toString()) ?? 0.0),
+        GeoPoint(
+            latitude:
+                double.tryParse(widget.bObj["drop_lat"].toString()) ?? 0.0,
+            longitude:
+                double.tryParse(widget.bObj["drop_long"].toString()) ?? 0.0),
         roadType: RoadType.car,
-        roadOption:
-            const RoadOption(roadColor: Colors.blueAccent, roadBorderWidth: 3));
+        roadOption: const RoadOption(
+          roadColor: Colors.blueAccent,
+          roadBorderWidth: 5,
+        ));
   }
 
   @override
@@ -376,5 +404,59 @@ class _TipRequestViewState extends State<TipRequestView> with OSMMixinObserver {
     if (isReady) {
       addMarker();
     }
+  }
+
+  //TODO: ApiCalling
+  void apiAcceptRide() {
+    Globs.showHUD();
+    ServiceCall.post({
+      "booking_id": widget.bObj["booking_id"].toString(),
+      "request_token": widget.bObj["request_token"] ?? ""
+    }, SVKey.svDriverRideAccept, isTokenApi: true,
+        withSuccess: (responseObj) async {
+      Globs.hideHUD();
+      if (responseObj[KKey.status] == "1") {
+        context.pop();
+        ////context.push(const RunRideView());
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content:
+                Text(responseObj[KKey.message] as String? ?? MSG.success)));
+        if (mounted) {
+          setState(() {});
+        }
+      } else {
+        mdShowAlert(Globs.appName,
+            responseObj[KKey.message] as String? ?? MSG.fail, () {});
+      }
+    }, failure: (error) async {
+      Globs.hideHUD();
+      mdShowAlert(Globs.appName, error as String? ?? MSG.fail, () {});
+    });
+  }
+
+  void apiDeclineRide() {
+    Globs.showHUD();
+    ServiceCall.post({
+      "booking_id": widget.bObj["booking_id"].toString(),
+      "request_token": widget.bObj["request_token"] ?? ""
+    }, SVKey.svDriverRideDecline, isTokenApi: true,
+        withSuccess: (responseObj) async {
+      Globs.hideHUD();
+      if (responseObj[KKey.status] == "1") {
+        context.pop();
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content:
+                Text(responseObj[KKey.message] as String? ?? MSG.success)));
+        if (mounted) {
+          setState(() {});
+        }
+      } else {
+        mdShowAlert(Globs.appName,
+            responseObj[KKey.message] as String? ?? MSG.fail, () {});
+      }
+    }, failure: (error) async {
+      Globs.hideHUD();
+      mdShowAlert(Globs.appName, error as String? ?? MSG.fail, () {});
+    });
   }
 }

@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:taxi_driver/common/color_extension.dart';
+import 'package:taxi_driver/common/common_extension.dart';
+import 'package:taxi_driver/common/globs.dart';
+import 'package:taxi_driver/common/location_helper.dart';
+import 'package:taxi_driver/common/service_call.dart';
+import 'package:taxi_driver/common/socket_manager.dart';
 import 'package:taxi_driver/common_widget/Icon_title_subtitle_button.dart';
 import 'package:taxi_driver/view/home/tip_request_view.dart';
 import 'package:taxi_driver/view/menu/menu_view.dart';
@@ -15,9 +20,37 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   bool isOpen = true;
 
+  bool isDriverOnline = false;
+
   MapController controller = MapController(
     initPosition: GeoPoint(latitude: 47.4358055, longitude: 8.4737324),
   );
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    isDriverOnline = Globs.udValueBool("is_online");
+
+    if (ServiceCall.userType == 2) {
+      LocationHelper.shared().startInit();
+    
+      // Received Message In Socket On Event
+      SocketManager.shared.socket?.on("new_ride_request", (data) {
+        print("new_ride_request socket get :${data.toString()} ");
+        if (data[KKey.status] == "1") {
+          var bArr = data[KKey.payload] as List? ?? [];
+
+          
+          if(mounted && bArr.isNotEmpty){
+            context.push( TipRequestView(bObj: bArr[0]) );
+          }
+        }
+      });
+      
+    }
+  }
 
   @override
   void dispose() {
@@ -87,7 +120,12 @@ class _HomeViewState extends State<HomeView> {
                     InkWell(
                       borderRadius: BorderRadius.circular(35),
                       onTap: () {
-                        context.push( const TipRequestView() );
+
+
+                          isDriverOnline = !isDriverOnline;
+                          
+                          apiGoOnline();
+                       // context.push(const TipRequestView());
                       },
                       child: Stack(
                         alignment: Alignment.center,
@@ -96,7 +134,7 @@ class _HomeViewState extends State<HomeView> {
                             width: 70,
                             height: 70,
                             decoration: BoxDecoration(
-                                color: TColor.primary,
+                                color: isDriverOnline ? TColor.red : TColor.primary,
                                 borderRadius: BorderRadius.circular(35),
                                 boxShadow: const [
                                   BoxShadow(
@@ -115,9 +153,9 @@ class _HomeViewState extends State<HomeView> {
                               borderRadius: BorderRadius.circular(35),
                             ),
                             alignment: Alignment.center,
-                            child: const Text(
-                              "GO",
-                              style: TextStyle(
+                            child:  Text(
+                              isDriverOnline ? "OFF"  : "GO",
+                              style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 22,
                                   fontWeight: FontWeight.w800),
@@ -188,7 +226,7 @@ class _HomeViewState extends State<HomeView> {
                           ),
                         ),
                         Text(
-                          "You're offiline",
+                          isDriverOnline ? "You're online" : "You're offline",
                           style: TextStyle(
                               color: TColor.primaryText,
                               fontSize: 18,
@@ -301,8 +339,8 @@ class _HomeViewState extends State<HomeView> {
                           alignment: Alignment.bottomLeft,
                           children: [
                             InkWell(
-                              onTap: (){
-                                context.push( const MenuView() );
+                              onTap: () {
+                                context.push(const MenuView());
                               },
                               child: Container(
                                 margin: const EdgeInsets.only(left: 10),
@@ -322,13 +360,13 @@ class _HomeViewState extends State<HomeView> {
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 1),
                               decoration: BoxDecoration(
                                 color: Colors.red,
                                 borderRadius: BorderRadius.circular(30),
                               ),
                               constraints: const BoxConstraints(minWidth: 15),
-                              
                               child: const Text(
                                 "3",
                                 style: TextStyle(
@@ -349,5 +387,34 @@ class _HomeViewState extends State<HomeView> {
         ],
       ),
     );
+  }
+
+  //MARK: ApiCalling
+  void apiGoOnline() {
+    Globs.showHUD();
+    ServiceCall.post(
+        {"is_online": isDriverOnline ? "1" : "0"}, SVKey.svDriverGoOnline,
+        isTokenApi: true, withSuccess: (responseObj) async {
+      Globs.hideHUD();
+
+      if (responseObj[KKey.status] == "1") {
+        Globs.udBoolSet(isDriverOnline, "is_online");
+
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content:
+                Text(responseObj[KKey.message] as String? ?? MSG.success)));
+
+        if (mounted) {
+          setState(() {});
+        }
+      } else {
+         isDriverOnline = !isDriverOnline;
+        mdShowAlert(
+            "Error", responseObj[KKey.message] as String? ?? MSG.fail, () {});
+      }
+    }, failure: (error) async {
+      Globs.hideHUD();
+      mdShowAlert(Globs.appName, error.toString(), () {});
+    });
   }
 }

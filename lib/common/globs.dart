@@ -108,6 +108,11 @@ class SVKey {
     static const svStaticData = "${baseUrl}static_data";
 
     static const svBookingRequest = "${baseUrl}booking_request";
+    static const svUpdateLocationDriver = "${baseUrl}update_location";
+    static const svDriverGoOnline = "${baseUrl}driver_online";
+
+    static const svDriverRideAccept = "${baseUrl}ride_request_accept";
+    static const svDriverRideDecline = "${baseUrl}ride_request_decline";
 }
 
 class KKey {

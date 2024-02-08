@@ -29,6 +29,7 @@ class LoginCubit extends Cubit<LoginState> {
 
 
             Globs.udSet(ServiceCall.userObj, Globs.userPayload);
+            Globs.udBoolSet(false,"is_online");
             Globs.udBoolSet(true, Globs.userLogin);
             emit(LoginApiResultState());
             emit(LoginInitialState());

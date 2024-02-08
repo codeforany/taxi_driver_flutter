@@ -61,6 +61,7 @@ dependencies:
   sqflite: ^2.3.2
   geocoding: ^2.1.1
   maps_toolkit: ^3.0.0
+  geolocator: ^10.1.0
 
 dev_dependencies:
   flutter_test:
