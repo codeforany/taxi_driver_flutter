@@ -7,6 +7,7 @@ import 'package:taxi_driver/common/location_helper.dart';
 import 'package:taxi_driver/common/service_call.dart';
 import 'package:taxi_driver/common/socket_manager.dart';
 import 'package:taxi_driver/common_widget/Icon_title_subtitle_button.dart';
+import 'package:taxi_driver/view/home/run_ride_view.dart';
 import 'package:taxi_driver/view/home/tip_request_view.dart';
 import 'package:taxi_driver/view/menu/menu_view.dart';
 
@@ -31,6 +32,7 @@ class _HomeViewState extends State<HomeView> {
     // TODO: implement initState
     super.initState();
 
+    apiHome();
     isDriverOnline = Globs.udValueBool("is_online");
 
     if (ServiceCall.userType == 2) {
@@ -409,6 +411,27 @@ class _HomeViewState extends State<HomeView> {
         }
       } else {
          isDriverOnline = !isDriverOnline;
+        mdShowAlert(
+            "Error", responseObj[KKey.message] as String? ?? MSG.fail, () {});
+      }
+    }, failure: (error) async {
+      Globs.hideHUD();
+      mdShowAlert(Globs.appName, error.toString(), () {});
+    });
+  }
+
+  void apiHome() {
+    Globs.showHUD();
+    ServiceCall.post(
+        {}, SVKey.svHome,
+        isTokenApi: true, withSuccess: (responseObj) async {
+      Globs.hideHUD();
+
+      if (responseObj[KKey.status] == "1") {
+          var rObj = (responseObj[KKey.payload] as Map? ?? {})["running"] as Map? ?? {};
+          context.push( RunRideView(rObj: rObj) );
+
+      } else {
         mdShowAlert(
             "Error", responseObj[KKey.message] as String? ?? MSG.fail, () {});
       }

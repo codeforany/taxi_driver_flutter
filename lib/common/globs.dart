@@ -113,6 +113,9 @@ class SVKey {
 
     static const svDriverRideAccept = "${baseUrl}ride_request_accept";
     static const svDriverRideDecline = "${baseUrl}ride_request_decline";
+
+    static const svHome = "${baseUrl}home";
+    static const svDriverWaitUser = "${baseUrl}driver_wait_user";
 }
 
 class KKey {

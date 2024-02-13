@@ -5,22 +5,36 @@ import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_timer_countdown/flutter_timer_countdown.dart';
 import 'package:taxi_driver/common/color_extension.dart';
+import 'package:taxi_driver/common/common_extension.dart';
+import 'package:taxi_driver/common/globs.dart';
+import 'package:taxi_driver/common/service_call.dart';
 import 'package:taxi_driver/common_widget/icon_title_button.dart';
 import 'package:taxi_driver/common_widget/round_button.dart';
 import 'package:taxi_driver/view/home/reason_view.dart';
 import 'package:taxi_driver/view/home/tip_detail_view.dart';
 
 class RunRideView extends StatefulWidget {
-  const RunRideView({super.key});
+  final Map rObj;
+  const RunRideView({super.key, required this.rObj});
 
   @override
   State<RunRideView> createState() => _RunRideViewState();
 }
 
+const bsPending = 0;
+const bsAccept = 1;
+const bsGoUser = 2;
+const bsWaitUser = 3;
+const bsStart = 4;
+const bsComplete = 5;
+const bsCancel = 6;
+
 class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
   bool isOpen = true;
-  int rideStatus = 0;
+  // int rideStatus = 0;
   bool isCompleteRide = false;
+
+  Map rideObj = {};
 
   //1 = Accept Ride
   //2 = Start
@@ -34,10 +48,23 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
   void initState() {
     // TODO: implement initState
     super.initState();
-    controller = MapController(
-      initPosition:
-          GeoPoint(latitude: 23.02756018230479, longitude: 72.58131973941731),
-    );
+
+    rideObj = widget.rObj;
+
+    if (rideObj["booking_status"] < bsStart) {
+      controller = MapController(
+        initPosition: GeoPoint(
+            latitude: double.tryParse(rideObj["pickup_lat"].toString()) ?? 0.0,
+            longitude:
+                double.tryParse(rideObj["pickup_long"].toString()) ?? 0.0),
+      );
+    } else {
+      controller = MapController(
+        initPosition: GeoPoint(
+            latitude: double.tryParse(rideObj["drop_lat"].toString()) ?? 0.0,
+            longitude: double.tryParse(rideObj["drop_long"].toString()) ?? 0.0),
+      );
+    }
 
     controller.addObserver(this);
   }
@@ -51,6 +78,8 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
 
   @override
   Widget build(BuildContext context) {
+    var showPickUp = rideObj["booking_status"] < bsStart;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -59,7 +88,7 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
             osmOption: OSMOption(
                 enableRotationByGesture: true,
                 zoomOption: const ZoomOption(
-                  initZoom: 8,
+                  initZoom: 15,
                   minZoomLevel: 3,
                   maxZoomLevel: 19,
                   stepZoom: 1.0,
@@ -95,7 +124,7 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                if (rideStatus == 1)
+                if (rideObj["booking_status"] == bsWaitUser)
                   // Ride Arrived Status
                   Container(
                     margin: const EdgeInsets.all(20),
@@ -156,7 +185,7 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                       ],
                     ),
                   ),
-                if (rideStatus == 2)
+                if (rideObj["booking_status"] == bsStart)
                   // Ride Started Status
                   Container(
                     margin: const EdgeInsets.all(20),
@@ -294,7 +323,7 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                         ),
                       ),
                       Text(
-                        "Picking up James smith",
+                        "Picking up ${rideObj["name"] ?? ""}",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: TColor.secondaryText,
@@ -379,7 +408,7 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                                                       MainAxisSize.min,
                                                   children: [
                                                     Text(
-                                                      "Cancel Rockdean's trip?",
+                                                      "Cancel ${rideObj["name"] ?? ""} trip?",
                                                       style: TextStyle(
                                                           color: TColor
                                                               .primaryText,
@@ -433,19 +462,19 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: RoundButton(
-                            title: rideStatus == 0
+                            title: rideObj["booking_status"] == bsGoUser
                                 ? "ARRIVED"
-                                : rideStatus == 1
+                                : rideObj["booking_status"] == bsWaitUser
                                     ? "START"
                                     : "COMPLETE",
                             onPressed: () async {
-                              if (rideStatus == 0) {
-                                rideStatus = 1;
-                                setState(() {});
-                              } else if (rideStatus == 1) {
-                                rideStatus = 2;
-                                setState(() {});
-                              } else if (rideStatus == 2) {
+                              if (rideObj["booking_status"] == bsGoUser) {
+                                // Api Calling Waiting For User
+                                apiWaitingForUser();
+                              } else if (rideObj["booking_status"] ==
+                                  bsWaitUser) {
+                                // Api Calling Start Ride
+                              } else if (rideObj["booking_status"] == bsStart) {
                                 await showDialog(
                                     context: context,
                                     barrierColor: const Color(0xff32384D),
@@ -497,7 +526,7 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                                                   ),
                                                 ),
                                               ),
-                                              Divider(),
+                                              const Divider(),
                                               Row(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment.end,
@@ -662,7 +691,9 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                       child: Row(
                         children: [
                           Image.asset(
-                            "assets/img/pickup_pin_1.png",
+                            showPickUp
+                                ? "assets/img/pickup_pin_1.png"
+                                : "assets/img/drop_pin_1.png",
                             width: 30,
                             height: 30,
                           ),
@@ -671,7 +702,10 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                           ),
                           Expanded(
                             child: Text(
-                              "1 Ash Park, Pembroke Dock, SA7254, Drury Lane, Oldham, OL9 7PH",
+                              rideObj[showPickUp
+                                      ? "pickup_address"
+                                      : "drop_address"] as String? ??
+                                  "",
                               style: TextStyle(
                                 color: TColor.primaryText,
                                 fontSize: 15,
@@ -714,24 +748,30 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
       ),
     );
 
-    //23.02756018230479, 72.58131973941731
-    //23.02726396414328, 72.5851928489523
+    await controller.setStaticPosition([
+      GeoPoint(
+          latitude: double.tryParse(rideObj["pickup_lat"].toString()) ?? 0.0,
+          longitude: double.tryParse(rideObj["pickup_long"].toString()) ?? 0.0)
+    ], "pickup");
 
-    await controller.setStaticPosition(
-        [GeoPoint(latitude: 23.02756018230479, longitude: 72.58131973941731)],
-        "pickup");
-
-    await controller.setStaticPosition(
-        [GeoPoint(latitude: 23.02726396414328, longitude: 72.5851928489523)],
-        "dropoff");
+    await controller.setStaticPosition([
+      GeoPoint(
+          latitude: double.tryParse(rideObj["drop_lat"].toString()) ?? 0.0,
+          longitude: double.tryParse(rideObj["drop_long"].toString()) ?? 0.0)
+    ], "dropoff");
 
     loadMapRoad();
   }
 
   void loadMapRoad() async {
     await controller.drawRoad(
-        GeoPoint(latitude: 23.02756018230479, longitude: 72.58131973941731),
-        GeoPoint(latitude: 23.02726396414328, longitude: 72.5851928489523),
+        GeoPoint(
+            latitude: double.tryParse(rideObj["pickup_lat"].toString()) ?? 0.0,
+            longitude:
+                double.tryParse(rideObj["pickup_long"].toString()) ?? 0.0),
+        GeoPoint(
+            latitude: double.tryParse(rideObj["drop_lat"].toString()) ?? 0.0,
+            longitude: double.tryParse(rideObj["drop_long"].toString()) ?? 0.0),
         roadType: RoadType.car,
         roadOption:
             const RoadOption(roadColor: Colors.blueAccent, roadBorderWidth: 3));
@@ -742,5 +782,29 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
     if (isReady) {
       addMarker();
     }
+  }
+
+  //TODO: ApiCalling
+
+  void apiWaitingForUser() {
+    Globs.showHUD();
+    ServiceCall.post({"booking_id": rideObj["booking_id"].toString()},
+        SVKey.svDriverWaitUser, isTokenApi: true,
+        withSuccess: (responseObj) async {
+      Globs.hideHUD();
+
+      if (responseObj[KKey.status] == "1") {
+        rideObj = responseObj[KKey.payload] as Map? ?? {};
+        if (mounted) {
+          setState(() {});
+        }
+      } else {
+        mdShowAlert(Globs.appName,
+            responseObj[KKey.message] as String? ?? MSG.fail, () {});
+      }
+    }, failure: (err) async {
+      Globs.hideHUD();
+      mdShowAlert(Globs.appName, err.toString(), () {});
+    });
   }
 }
