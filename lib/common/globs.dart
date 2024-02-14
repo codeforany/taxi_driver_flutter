@@ -116,6 +116,7 @@ class SVKey {
 
     static const svHome = "${baseUrl}home";
     static const svDriverWaitUser = "${baseUrl}driver_wait_user";
+    static const svRideStart = "${baseUrl}ride_start";
 }
 
 class KKey {

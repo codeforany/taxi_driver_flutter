@@ -7,6 +7,7 @@ import 'package:flutter_timer_countdown/flutter_timer_countdown.dart';
 import 'package:taxi_driver/common/color_extension.dart';
 import 'package:taxi_driver/common/common_extension.dart';
 import 'package:taxi_driver/common/globs.dart';
+import 'package:taxi_driver/common/location_helper.dart';
 import 'package:taxi_driver/common/service_call.dart';
 import 'package:taxi_driver/common_widget/icon_title_button.dart';
 import 'package:taxi_driver/common_widget/round_button.dart';
@@ -35,6 +36,9 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
   bool isCompleteRide = false;
 
   Map rideObj = {};
+
+  TextEditingController txtOTP = TextEditingController();
+
 
   //1 = Accept Ride
   //2 = Start
@@ -185,67 +189,67 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                       ],
                     ),
                   ),
-                if (rideObj["booking_status"] == bsStart)
-                  // Ride Started Status
-                  Container(
-                    margin: const EdgeInsets.all(20),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 25),
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(50),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 10,
-                            offset: Offset(0, -5),
-                          ),
-                        ]),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Stack(
-                          alignment: Alignment.bottomCenter,
-                          children: [
-                            TimerCountdown(
-                              format: CountDownTimerFormat.minutesSeconds,
-                              endTime: DateTime.now().add(
-                                const Duration(
-                                  minutes: 2,
-                                ),
-                              ),
-                              onEnd: () {
-                                print("Timer finished");
-                              },
-                              timeTextStyle: TextStyle(
-                                color: TColor.secondary,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 25,
-                              ),
-                              colonsTextStyle: TextStyle(
-                                color: TColor.secondary,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 25,
-                              ),
-                              spacerWidth: 0,
-                              daysDescription: "",
-                              hoursDescription: "",
-                              minutesDescription: "",
-                              secondsDescription: "",
-                            ),
-                            Text(
-                              "Arrived at dropoff",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: TColor.secondaryText,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+                // if (rideObj["booking_status"] == bsStart)
+                //   // Ride Started Status
+                //   Container(
+                //     margin: const EdgeInsets.all(20),
+                //     padding: const EdgeInsets.symmetric(
+                //         vertical: 10, horizontal: 25),
+                //     decoration: BoxDecoration(
+                //         color: Colors.white,
+                //         borderRadius: BorderRadius.circular(50),
+                //         boxShadow: const [
+                //           BoxShadow(
+                //             color: Colors.black12,
+                //             blurRadius: 10,
+                //             offset: Offset(0, -5),
+                //           ),
+                //         ]),
+                //     child: Column(
+                //       mainAxisSize: MainAxisSize.min,
+                //       children: [
+                //         Stack(
+                //           alignment: Alignment.bottomCenter,
+                //           children: [
+                //             TimerCountdown(
+                //               format: CountDownTimerFormat.minutesSeconds,
+                //               endTime: DateTime.now().add(
+                //                 const Duration(
+                //                   minutes: 2,
+                //                 ),
+                //               ),
+                //               onEnd: () {
+                //                 print("Timer finished");
+                //               },
+                //               timeTextStyle: TextStyle(
+                //                 color: TColor.secondary,
+                //                 fontWeight: FontWeight.w800,
+                //                 fontSize: 25,
+                //               ),
+                //               colonsTextStyle: TextStyle(
+                //                 color: TColor.secondary,
+                //                 fontWeight: FontWeight.w800,
+                //                 fontSize: 25,
+                //               ),
+                //               spacerWidth: 0,
+                //               daysDescription: "",
+                //               hoursDescription: "",
+                //               minutesDescription: "",
+                //               secondsDescription: "",
+                //             ),
+                //             Text(
+                //               "Arrived at dropoff",
+                //               textAlign: TextAlign.center,
+                //               style: TextStyle(
+                //                 color: TColor.secondaryText,
+                //                 fontSize: 16,
+                //               ),
+                //             ),
+                //           ],
+                //         ),
+                //       ],
+                //     ),
+                //   ),
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 15),
                   decoration: const BoxDecoration(
@@ -473,7 +477,104 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                                 apiWaitingForUser();
                               } else if (rideObj["booking_status"] ==
                                   bsWaitUser) {
-                                // Api Calling Start Ride
+                                await showDialog(
+                                    context: context,
+                                    barrierColor: const Color(0xff32384D).withOpacity(0.4),
+                                    builder: (context) {
+                                      return Dialog(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10)),
+                                        child: Container(
+                                          padding: const EdgeInsets.all(15),
+                                          width: context.width - 50,
+                                          height: 190,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Enter OTP",
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                    color: TColor.primaryText,
+                                                    fontSize: 23,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                              ),
+                                              Text(
+                                                "Please enter OTP",
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                    color: TColor.secondaryText,
+                                                    fontSize: 8),
+                                              ),
+                                              TextField(
+                                                controller: txtOTP,
+                                                keyboardType:
+                                                    TextInputType.number,
+                                                style: TextStyle(
+                                                  color: TColor.primaryText,
+                                                  fontSize: 16,
+                                                ),
+                                                decoration: InputDecoration(
+                                                  enabledBorder:
+                                                      InputBorder.none,
+                                                  focusedBorder:
+                                                      InputBorder.none,
+                                                  hintText: "----",
+                                                  hintStyle: TextStyle(
+                                                    color: TColor.secondaryText,
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                              ),
+                                              const Divider(),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      context.pop();
+                                                    },
+                                                    child: Text(
+                                                      "CANCEL",
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style: TextStyle(
+                                                          color: TColor.red,
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.w600),
+                                                    ),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      
+                                                      context.pop();
+
+                                                      apiRideStart();
+                                                    },
+                                                    child: Text(
+                                                      "RIDE START",
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style: TextStyle(
+                                                          color: TColor.primary,
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.w600),
+                                                    ),
+                                                  )
+                                                ],
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    });
+
                               } else if (rideObj["booking_status"] == bsStart) {
                                 await showDialog(
                                     context: context,
@@ -795,6 +896,41 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
 
       if (responseObj[KKey.status] == "1") {
         rideObj = responseObj[KKey.payload] as Map? ?? {};
+        if (mounted) {
+          setState(() {});
+        }
+      } else {
+        mdShowAlert(Globs.appName,
+            responseObj[KKey.message] as String? ?? MSG.fail, () {});
+      }
+    }, failure: (err) async {
+      Globs.hideHUD();
+      mdShowAlert(Globs.appName, err.toString(), () {});
+    });
+  }
+
+  void apiRideStart() {
+
+    if(txtOTP.text.length != 4) {
+      mdShowAlert("Error", "Pleas valid OTP", () { });
+      return;
+    }
+
+    var startLocation = LocationHelper.shared().lastLocation;
+
+    if(startLocation == null) {
+      return;
+    }
+
+    Globs.showHUD();
+    ServiceCall.post({"booking_id": rideObj["booking_id"].toString(), "pickup_latitude": "${ startLocation.latitude }", "pickup_longitude":"${ startLocation.longitude }", "otp_code": txtOTP.text },
+        SVKey.svRideStart, isTokenApi: true,
+        withSuccess: (responseObj) async {
+      Globs.hideHUD();
+
+      if (responseObj[KKey.status] == "1") {
+        rideObj = responseObj[KKey.payload] as Map? ?? {};
+        LocationHelper.shared().startRideLocationSave(rideObj["booking_id"] as int? ?? 0 , startLocation);
         if (mounted) {
           setState(() {});
         }

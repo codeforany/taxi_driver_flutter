@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:taxi_driver/common/common_extension.dart';
 import 'package:taxi_driver/common/globs.dart';
 import 'package:taxi_driver/common/service_call.dart';
 import 'package:taxi_driver/common/socket_manager.dart';
@@ -17,6 +19,10 @@ class LocationHelper {
   StreamSubscription<Position>? positionStreamSub;
   StreamSubscription<ServiceStatus>? serviceStatusStreamSub;
   bool positionSteamStarted = true;
+
+  Position? lastLocation;
+  bool isSaveFileLocation = false;
+  int bookingId = 0;
 
   void startInit() async {
     var isAccess = await handlePermission();
@@ -115,6 +121,16 @@ class LocationHelper {
 
         } ).listen((position) {
             //Api Calling REST Api Calling
+            lastLocation = position;
+
+            if(isSaveFileLocation && bookingId != 0) {
+              try {
+                File("$bookingId.txt").writeAsStringSync(',{"latitude":${ position.latitude },"longitude":${ position.longitude },"time":${  DateTime.now().stringFormat(format: "yyyy-MM-dd HH:mm:ss" ) }}', mode: FileMode.append );
+                 debugPrint("Save Location ---");
+              } catch (e) {
+                debugPrint(e.toString());
+              }
+            }
             apiCallingLocationUpdate(position);
         });
       }
@@ -146,7 +162,25 @@ class LocationHelper {
       }, failure: (error) async {
             debugPrint(" Location send fill : $error");
       } );
+  }
 
+  void startRideLocationSave(int bId, Position position) {
+    bookingId = bId;
+    
+    try {
+      File("$bookingId.txt").writeAsStringSync(
+          '{"latitude":${position.latitude},"longitude":${position.longitude},"time":${DateTime.now().stringFormat(format: "yyyy-MM-dd HH:mm:ss")}}',
+          mode: FileMode.append);
 
+          debugPrint("Save Location ---");
+          isSaveFileLocation = true;
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  void stopRideLocationSave(){
+    isSaveFileLocation = false;
+    bookingId = 0;
   }
 }
