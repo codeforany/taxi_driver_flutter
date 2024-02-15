@@ -32,12 +32,11 @@ const bsCancel = 6;
 
 class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
   bool isOpen = true;
-  // int rideStatus = 0;
-  bool isCompleteRide = false;
 
   Map rideObj = {};
 
   TextEditingController txtOTP = TextEditingController();
+  TextEditingController txtToll = TextEditingController();
 
 
   //1 = Accept Ride
@@ -123,7 +122,7 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
               print("GeoPointClicked location :$myLocation");
             },
           ),
-          if (!isCompleteRide)
+          if (rideObj["booking_status"] != bsComplete)
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.end,
@@ -578,7 +577,7 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                               } else if (rideObj["booking_status"] == bsStart) {
                                 await showDialog(
                                     context: context,
-                                    barrierColor: const Color(0xff32384D),
+                                    barrierColor: const Color(0xff32384D).withOpacity(0.4),
                                     builder: (context) {
                                       return Dialog(
                                         shape: RoundedRectangleBorder(
@@ -609,6 +608,7 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                                                     fontSize: 8),
                                               ),
                                               TextField(
+                                                controller: txtToll,
                                                 keyboardType:
                                                     TextInputType.number,
                                                 style: TextStyle(
@@ -620,7 +620,7 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                                                       InputBorder.none,
                                                   focusedBorder:
                                                       InputBorder.none,
-                                                  hintText: "\$250",
+                                                  hintText: "\$0",
                                                   hintStyle: TextStyle(
                                                     color: TColor.secondaryText,
                                                     fontSize: 16,
@@ -641,7 +641,7 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                                                       textAlign:
                                                           TextAlign.center,
                                                       style: TextStyle(
-                                                          color: TColor.primary,
+                                                          color: TColor.red,
                                                           fontSize: 16,
                                                           fontWeight:
                                                               FontWeight.w600),
@@ -649,10 +649,9 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                                                   ),
                                                   TextButton(
                                                     onPressed: () {
-                                                      setState(() {
-                                                        isCompleteRide = true;
-                                                      });
+                                                     
                                                       context.pop();
+                                                      apiRideStop();
                                                     },
                                                     child: Text(
                                                       "DONE",
@@ -732,7 +731,7 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                         height: 8,
                       ),
                       RatingBar.builder(
-                        initialRating: 3,
+                        initialRating: 5,
                         minRating: 1,
                         direction: Axis.horizontal,
                         allowHalfRating: true,
@@ -934,6 +933,43 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
         if (mounted) {
           setState(() {});
         }
+      } else {
+        mdShowAlert(Globs.appName,
+            responseObj[KKey.message] as String? ?? MSG.fail, () {});
+      }
+    }, failure: (err) async {
+      Globs.hideHUD();
+      mdShowAlert(Globs.appName, err.toString(), () {});
+    });
+  }
+
+  void apiRideStop() {
+    
+
+    var endLocation = LocationHelper.shared().lastLocation;
+
+    if (endLocation == null) {
+      return;
+    }
+    LocationHelper.shared().stopRideLocationSave();
+    Globs.showHUD();
+    ServiceCall.post({
+      "booking_id": rideObj["booking_id"].toString(),
+      "drop_latitude": "${endLocation.latitude}",
+      "drop_longitude": "${endLocation.longitude}",
+      "ride_location": LocationHelper.shared().getRideSaveLocationJsonString(rideObj["booking_id"] as int? ?? 0),
+      "toll_tax": txtToll.text == "" ? "0" : txtToll.text
+    }, SVKey.svRideStop, isTokenApi: true, withSuccess: (responseObj) async {
+      Globs.hideHUD();
+
+      if (responseObj[KKey.status] == "1") {
+        rideObj = responseObj[KKey.payload] as Map? ?? {};
+        if (mounted) {
+          setState(() {});
+        }
+
+        mdShowAlert("Ride Completed", responseObj[KKey.message] as String? ?? MSG.success , () { });
+        
       } else {
         mdShowAlert(Globs.appName,
             responseObj[KKey.message] as String? ?? MSG.fail, () {});

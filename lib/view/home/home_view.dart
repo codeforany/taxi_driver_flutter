@@ -429,7 +429,11 @@ class _HomeViewState extends State<HomeView> {
 
       if (responseObj[KKey.status] == "1") {
           var rObj = (responseObj[KKey.payload] as Map? ?? {})["running"] as Map? ?? {};
-          context.push( RunRideView(rObj: rObj) );
+          
+          if(rObj.keys.isNotEmpty) {
+            context.push(RunRideView(rObj: rObj));
+          }
+          
 
       } else {
         mdShowAlert(

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:taxi_driver/common/common_extension.dart';
 import 'package:taxi_driver/common/globs.dart';
 import 'package:taxi_driver/common/service_call.dart';
@@ -24,12 +25,16 @@ class LocationHelper {
   bool isSaveFileLocation = false;
   int bookingId = 0;
 
+  String saveFilePath = "";
+
   void startInit() async {
     var isAccess = await handlePermission();
 
     if(!isAccess) {
       return;
     }
+
+    saveFilePath =   (await getSavePath()).path;
 
     if(serviceStatusStreamSub == null) {
       final serviceStatusStream = geolocatorPlatform.getServiceStatusStream();
@@ -125,7 +130,7 @@ class LocationHelper {
 
             if(isSaveFileLocation && bookingId != 0) {
               try {
-                File("$bookingId.txt").writeAsStringSync(',{"latitude":${ position.latitude },"longitude":${ position.longitude },"time":${  DateTime.now().stringFormat(format: "yyyy-MM-dd HH:mm:ss" ) }}', mode: FileMode.append );
+                File("$saveFilePath/$bookingId.txt").writeAsStringSync(',{"latitude":${ position.latitude },"longitude":${ position.longitude },"time":"${  DateTime.now().stringFormat(format: "yyyy-MM-dd HH:mm:ss" ) }"}', mode: FileMode.append );
                  debugPrint("Save Location ---");
               } catch (e) {
                 debugPrint(e.toString());
@@ -168,9 +173,10 @@ class LocationHelper {
     bookingId = bId;
     
     try {
-      File("$bookingId.txt").writeAsStringSync(
-          '{"latitude":${position.latitude},"longitude":${position.longitude},"time":${DateTime.now().stringFormat(format: "yyyy-MM-dd HH:mm:ss")}}',
+      File("$saveFilePath/$bookingId.txt").writeAsStringSync(
+          '{"latitude":${position.latitude},"longitude":${position.longitude},"time":"${DateTime.now().stringFormat(format: "yyyy-MM-dd HH:mm:ss")}"}',
           mode: FileMode.append);
+                
 
           debugPrint("Save Location ---");
           isSaveFileLocation = true;
@@ -182,5 +188,23 @@ class LocationHelper {
   void stopRideLocationSave(){
     isSaveFileLocation = false;
     bookingId = 0;
+  }
+
+  Future<Directory> getSavePath() async {
+    if (Platform.isAndroid) {
+      return getTemporaryDirectory();
+    }else{
+      return getApplicationCacheDirectory();
+    }
+  }
+
+  String getRideSaveLocationJsonString(int bookingId) {
+    try {
+      
+      return "[${File("$saveFilePath/$bookingId.txt").readAsStringSync()}]";
+    } catch (e) {
+      debugPrint(e.toString());
+      return "[]";
+    }
   }
 }
