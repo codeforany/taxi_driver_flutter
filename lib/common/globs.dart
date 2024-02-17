@@ -119,6 +119,7 @@ class SVKey {
     static const svRideStart = "${baseUrl}ride_start";
     static const svRideStop = "${baseUrl}ride_stop";
     static const svRideCancel = "${baseUrl}driver_cancel_ride";
+    static const svUserRideCancel = "${baseUrl}user_cancel_ride";
     
 }
 

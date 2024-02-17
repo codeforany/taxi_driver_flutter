@@ -39,14 +39,15 @@ class _HomeViewState extends State<HomeView> {
       LocationHelper.shared().startInit();
     
       // Received Message In Socket On Event
-      SocketManager.shared.socket?.on("new_ride_request", (data) {
+      SocketManager.shared.socket?.on("new_ride_request", (data) async {
         print("new_ride_request socket get :${data.toString()} ");
         if (data[KKey.status] == "1") {
           var bArr = data[KKey.payload] as List? ?? [];
 
           
           if(mounted && bArr.isNotEmpty){
-            context.push( TipRequestView(bObj: bArr[0]) );
+           await  context.push( TipRequestView(bObj: bArr[0]) );
+            apiHome();
           }
         }
       });

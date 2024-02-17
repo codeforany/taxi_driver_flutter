@@ -14,9 +14,10 @@ import 'package:taxi_driver/view/login/profile_image_view.dart';
 import 'package:taxi_driver/view/user/user_home_view.dart';
 
 class OTPView extends StatefulWidget {
+  final bool isDriver;
   final String number;
   final String code;
-  const OTPView({super.key, required this.number, required this.code});
+  const OTPView({super.key, required this.number, required this.code, this.isDriver = true});
 
   @override
   State<OTPView> createState() => _OTPViewState();
@@ -231,6 +232,6 @@ class _OTPViewState extends State<OTPView> {
   }
 
   void submitApiData(String uid) {
-    context.read<LoginCubit>().submitLogin(widget.code, widget.number, "2");
+    context.read<LoginCubit>().submitLogin(widget.code, widget.number, widget.isDriver ?  "2" : "1" );
   }
 }

@@ -14,12 +14,12 @@ import 'package:taxi_driver/common_widget/icon_title_button.dart';
 import 'package:taxi_driver/common_widget/round_button.dart';
 import 'package:taxi_driver/view/home/tip_detail_view.dart';
 
-class RunRideView extends StatefulWidget {
+class UserRunRideView extends StatefulWidget {
   final Map rObj;
-  const RunRideView({super.key, required this.rObj});
+  const UserRunRideView({super.key, required this.rObj});
 
   @override
-  State<RunRideView> createState() => _RunRideViewState();
+  State<UserRunRideView> createState() => _UserRunRideViewState();
 }
 
 const bsPending = 0;
@@ -30,7 +30,8 @@ const bsStart = 4;
 const bsComplete = 5;
 const bsCancel = 6;
 
-class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
+class _UserRunRideViewState extends State<UserRunRideView>
+    with OSMMixinObserver {
   bool isOpen = true;
 
   Map rideObj = {};
@@ -70,8 +71,8 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
 
     controller.addObserver(this);
 
-    SocketManager.shared.socket?.on("user_cancel_ride", (data) {
-      print("user_cancel_ride socket get : ${data.toString()}");
+    SocketManager.shared.socket?.on("driver_cancel_ride", (data) {
+      print("driver_cancel_ride socket get : ${data.toString()}");
       if (data[KKey.status] == "1") {
         if (data[KKey.payload]["booking_id"] == rideObj["booking_id"]) {
           openUserRideCancelPopup();
@@ -81,7 +82,7 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
   }
 
   void openUserRideCancelPopup() async {
-    mdShowAlert("Ride Cancel", "User cancel ride", () {
+    mdShowAlert("Ride Cancel", "Driver cancel ride", () {
       context.pop();
     }, isForce: true);
   }
@@ -476,220 +477,6 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                           ],
                         ),
                       const SizedBox(
-                        height: 15,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: RoundButton(
-                            title: rideObj["booking_status"] == bsGoUser
-                                ? "ARRIVED"
-                                : rideObj["booking_status"] == bsWaitUser
-                                    ? "START"
-                                    : "COMPLETE",
-                            onPressed: () async {
-                              if (rideObj["booking_status"] == bsGoUser) {
-                                // Api Calling Waiting For User
-                                apiWaitingForUser();
-                              } else if (rideObj["booking_status"] ==
-                                  bsWaitUser) {
-                                await showDialog(
-                                    context: context,
-                                    barrierColor: const Color(0xff32384D)
-                                        .withOpacity(0.4),
-                                    builder: (context) {
-                                      return Dialog(
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                        child: Container(
-                                          padding: const EdgeInsets.all(15),
-                                          width: context.width - 50,
-                                          height: 190,
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "Enter OTP",
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                    color: TColor.primaryText,
-                                                    fontSize: 23,
-                                                    fontWeight:
-                                                        FontWeight.w600),
-                                              ),
-                                              Text(
-                                                "Please enter OTP",
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                    color: TColor.secondaryText,
-                                                    fontSize: 8),
-                                              ),
-                                              TextField(
-                                                controller: txtOTP,
-                                                keyboardType:
-                                                    TextInputType.number,
-                                                style: TextStyle(
-                                                  color: TColor.primaryText,
-                                                  fontSize: 16,
-                                                ),
-                                                decoration: InputDecoration(
-                                                  enabledBorder:
-                                                      InputBorder.none,
-                                                  focusedBorder:
-                                                      InputBorder.none,
-                                                  hintText: "----",
-                                                  hintStyle: TextStyle(
-                                                    color: TColor.secondaryText,
-                                                    fontSize: 16,
-                                                  ),
-                                                ),
-                                              ),
-                                              const Divider(),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.end,
-                                                children: [
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      context.pop();
-                                                    },
-                                                    child: Text(
-                                                      "CANCEL",
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: TextStyle(
-                                                          color: TColor.red,
-                                                          fontSize: 16,
-                                                          fontWeight:
-                                                              FontWeight.w600),
-                                                    ),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      context.pop();
-
-                                                      apiRideStart();
-                                                    },
-                                                    child: Text(
-                                                      "RIDE START",
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: TextStyle(
-                                                          color: TColor.primary,
-                                                          fontSize: 16,
-                                                          fontWeight:
-                                                              FontWeight.w600),
-                                                    ),
-                                                  )
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    });
-                              } else if (rideObj["booking_status"] == bsStart) {
-                                await showDialog(
-                                    context: context,
-                                    barrierColor: const Color(0xff32384D)
-                                        .withOpacity(0.4),
-                                    builder: (context) {
-                                      return Dialog(
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                        child: Container(
-                                          padding: const EdgeInsets.all(15),
-                                          width: context.width - 50,
-                                          height: 190,
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "Enter Toll Amount",
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                    color: TColor.primaryText,
-                                                    fontSize: 23,
-                                                    fontWeight:
-                                                        FontWeight.w600),
-                                              ),
-                                              Text(
-                                                "Please enter toll amount",
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                    color: TColor.secondaryText,
-                                                    fontSize: 8),
-                                              ),
-                                              TextField(
-                                                controller: txtToll,
-                                                keyboardType:
-                                                    TextInputType.number,
-                                                style: TextStyle(
-                                                  color: TColor.primaryText,
-                                                  fontSize: 16,
-                                                ),
-                                                decoration: InputDecoration(
-                                                  enabledBorder:
-                                                      InputBorder.none,
-                                                  focusedBorder:
-                                                      InputBorder.none,
-                                                  hintText: "\$0",
-                                                  hintStyle: TextStyle(
-                                                    color: TColor.secondaryText,
-                                                    fontSize: 16,
-                                                  ),
-                                                ),
-                                              ),
-                                              const Divider(),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.end,
-                                                children: [
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      context.pop();
-                                                    },
-                                                    child: Text(
-                                                      "CANCEL",
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: TextStyle(
-                                                          color: TColor.red,
-                                                          fontSize: 16,
-                                                          fontWeight:
-                                                              FontWeight.w600),
-                                                    ),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      context.pop();
-                                                      apiRideStop();
-                                                    },
-                                                    child: Text(
-                                                      "DONE",
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: TextStyle(
-                                                          color: TColor.primary,
-                                                          fontSize: 16,
-                                                          fontWeight:
-                                                              FontWeight.w600),
-                                                    ),
-                                                  )
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    });
-                              }
-                            }),
-                      ),
-                      const SizedBox(
                         height: 25,
                       ),
                     ],
@@ -877,11 +664,17 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                 double.tryParse(rideObj["pickup_long"].toString()) ?? 0.0)
       ], "pickup");
 
+      await controller.setStaticPosition([
+        GeoPoint(
+            latitude: double.tryParse(rideObj["drop_lat"].toString()) ?? 0.0,
+            longitude: double.tryParse(rideObj["drop_long"].toString()) ?? 0.0)
+      ], "dropoff");
+
       await controller.drawRoad(
           GeoPoint(
-              latitude: LocationHelper.shared().lastLocation?.latitude ?? 0.0,
+              latitude: double.tryParse(rideObj["lati"].toString()) ?? 0.0,
               longitude:
-                  LocationHelper.shared().lastLocation?.longitude ?? 0.0),
+                  double.tryParse(rideObj["longi"].toString()) ?? 0.0),
           GeoPoint(
               latitude:
                   double.tryParse(rideObj["pickup_lat"].toString()) ?? 0.0,
@@ -899,10 +692,9 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
       ], "dropoff");
 
       await controller.drawRoad(
-          GeoPoint(
-              latitude: LocationHelper.shared().lastLocation?.latitude ?? 0.0,
-              longitude:
-                  LocationHelper.shared().lastLocation?.longitude ?? 0.0),
+           GeoPoint(
+              latitude: double.tryParse(rideObj["lati"].toString()) ?? 0.0,
+              longitude: double.tryParse(rideObj["longi"].toString()) ?? 0.0),
           GeoPoint(
               latitude: double.tryParse(rideObj["drop_lat"].toString()) ?? 0.0,
               longitude:
@@ -922,34 +714,14 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
 
   //TODO: ApiCalling
 
-  void apiWaitingForUser() {
-    Globs.showHUD();
-    ServiceCall.post({"booking_id": rideObj["booking_id"].toString()},
-        SVKey.svDriverWaitUser, isTokenApi: true,
-        withSuccess: (responseObj) async {
-      Globs.hideHUD();
-
-      if (responseObj[KKey.status] == "1") {
-        rideObj = responseObj[KKey.payload] as Map? ?? {};
-        if (mounted) {
-          setState(() {});
-        }
-      } else {
-        mdShowAlert(Globs.appName,
-            responseObj[KKey.message] as String? ?? MSG.fail, () {});
-      }
-    }, failure: (err) async {
-      Globs.hideHUD();
-      mdShowAlert(Globs.appName, err.toString(), () {});
-    });
-  }
+  
 
   void apiCancelRide() {
     Globs.showHUD();
     ServiceCall.post({
       "booking_id": rideObj["booking_id"].toString(),
       "booking_status": rideObj["booking_status"].toString()
-    }, SVKey.svRideCancel, isTokenApi: true, withSuccess: (responseObj) async {
+    }, SVKey.svUserRideCancel, isTokenApi: true, withSuccess: (responseObj) async {
       Globs.hideHUD();
 
       if (responseObj[KKey.status] == "1") {
@@ -958,80 +730,6 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
             () {
           context.pop();
         });
-      } else {
-        mdShowAlert(Globs.appName,
-            responseObj[KKey.message] as String? ?? MSG.fail, () {});
-      }
-    }, failure: (err) async {
-      Globs.hideHUD();
-      mdShowAlert(Globs.appName, err.toString(), () {});
-    });
-  }
-
-  void apiRideStart() {
-    if (txtOTP.text.length != 4) {
-      mdShowAlert("Error", "Pleas valid OTP", () {});
-      return;
-    }
-
-    var startLocation = LocationHelper.shared().lastLocation;
-
-    if (startLocation == null) {
-      return;
-    }
-
-    Globs.showHUD();
-    ServiceCall.post({
-      "booking_id": rideObj["booking_id"].toString(),
-      "pickup_latitude": "${startLocation.latitude}",
-      "pickup_longitude": "${startLocation.longitude}",
-      "otp_code": txtOTP.text
-    }, SVKey.svRideStart, isTokenApi: true, withSuccess: (responseObj) async {
-      Globs.hideHUD();
-
-      if (responseObj[KKey.status] == "1") {
-        rideObj = responseObj[KKey.payload] as Map? ?? {};
-        LocationHelper.shared().startRideLocationSave(
-            rideObj["booking_id"] as int? ?? 0, startLocation);
-        if (mounted) {
-          setState(() {});
-        }
-      } else {
-        mdShowAlert(Globs.appName,
-            responseObj[KKey.message] as String? ?? MSG.fail, () {});
-      }
-    }, failure: (err) async {
-      Globs.hideHUD();
-      mdShowAlert(Globs.appName, err.toString(), () {});
-    });
-  }
-
-  void apiRideStop() {
-    var endLocation = LocationHelper.shared().lastLocation;
-
-    if (endLocation == null) {
-      return;
-    }
-    LocationHelper.shared().stopRideLocationSave();
-    Globs.showHUD();
-    ServiceCall.post({
-      "booking_id": rideObj["booking_id"].toString(),
-      "drop_latitude": "${endLocation.latitude}",
-      "drop_longitude": "${endLocation.longitude}",
-      "ride_location": LocationHelper.shared()
-          .getRideSaveLocationJsonString(rideObj["booking_id"] as int? ?? 0),
-      "toll_tax": txtToll.text == "" ? "0" : txtToll.text
-    }, SVKey.svRideStop, isTokenApi: true, withSuccess: (responseObj) async {
-      Globs.hideHUD();
-
-      if (responseObj[KKey.status] == "1") {
-        rideObj = responseObj[KKey.payload] as Map? ?? {};
-        if (mounted) {
-          setState(() {});
-        }
-
-        mdShowAlert("Ride Completed",
-            responseObj[KKey.message] as String? ?? MSG.success, () {});
       } else {
         mdShowAlert(Globs.appName,
             responseObj[KKey.message] as String? ?? MSG.fail, () {});

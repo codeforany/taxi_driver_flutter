@@ -7,12 +7,14 @@ import 'package:taxi_driver/common/color_extension.dart';
 import 'package:taxi_driver/common/common_extension.dart';
 import 'package:taxi_driver/common/globs.dart';
 import 'package:taxi_driver/common/service_call.dart';
+import 'package:taxi_driver/common/socket_manager.dart';
 import 'package:taxi_driver/common_widget/location_select_button.dart';
 import 'package:taxi_driver/common_widget/round_button.dart';
 import 'package:taxi_driver/model/price_detail_mode.dart';
 import 'package:taxi_driver/model/zone_list_model.dart';
 import 'package:taxi_driver/view/menu/menu_view.dart';
 import 'package:taxi_driver/view/user/car_service_select_view.dart';
+import 'package:taxi_driver/view/user/user_run_ride_view.dart';
 
 class UserHomeView extends StatefulWidget {
   const UserHomeView({super.key});
@@ -62,6 +64,14 @@ class _UserHomeViewState extends State<UserHomeView> {
         getSelectLocation(isSelectPickup);
       }
     });
+
+    SocketManager.shared.socket?.on("user_request_accept", (data) {
+      if(data[KKey.status] == "1" ) {
+        apiHome();
+      }
+    });
+
+    apiHome();
   }
 
   @override
@@ -544,6 +554,29 @@ class _UserHomeViewState extends State<UserHomeView> {
           debugPrint(err.toString());
       } );
 
+  }
+
+  void apiHome() {
+    Globs.showHUD();
+    ServiceCall.post({}, SVKey.svHome, isTokenApi: true,
+        withSuccess: (responseObj) async {
+      Globs.hideHUD();
+
+      if (responseObj[KKey.status] == "1") {
+        var rObj =
+            (responseObj[KKey.payload] as Map? ?? {})["running"] as Map? ?? {};
+
+        if (rObj.keys.isNotEmpty) {
+          context.push(UserRunRideView(rObj: rObj));
+        }
+      } else {
+        mdShowAlert(
+            "Error", responseObj[KKey.message] as String? ?? MSG.fail, () {});
+      }
+    }, failure: (error) async {
+      Globs.hideHUD();
+      mdShowAlert(Globs.appName, error.toString(), () {});
+    });
   }
 
 }

@@ -149,7 +149,17 @@ class _MobileNumberViewState extends State<MobileNumberView> {
               onPressed: () {
                 context.push(  OTPView(number: txtMobile.text, code: countryCode.dialCode) );
               },
-              title: "CONTINUE",
+              title: "Login AS Driver",
+            ),
+
+            const SizedBox(
+              height: 15,
+            ),
+            RoundButton(
+              onPressed: () {
+                context.push(  OTPView(number: txtMobile.text, code: countryCode.dialCode, isDriver: false,) );
+              },
+              title: "Login AS USER",
             )
           ],
         ),

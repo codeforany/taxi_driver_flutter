@@ -6,9 +6,10 @@ import 'package:timeago/timeago.dart' as timeago;
 extension MDExtensionState on State {
   void mdShowAlert(String title, String message, VoidCallback onPressed,
       {String buttonTitle = "Ok",
-      TextAlign mainAxisAlignment = TextAlign.center}) {
+      TextAlign mainAxisAlignment = TextAlign.center, isForce = false }) {
     showDialog(
         context: context,
+        barrierDismissible: !isForce,
         builder: (context) => CupertinoAlertDialog(
               title: Text(title),
               content: Text(message),
