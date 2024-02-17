@@ -11,7 +11,6 @@ import 'package:taxi_driver/common/location_helper.dart';
 import 'package:taxi_driver/common/service_call.dart';
 import 'package:taxi_driver/common_widget/icon_title_button.dart';
 import 'package:taxi_driver/common_widget/round_button.dart';
-import 'package:taxi_driver/view/home/reason_view.dart';
 import 'package:taxi_driver/view/home/tip_detail_view.dart';
 
 class RunRideView extends StatefulWidget {
@@ -70,6 +69,7 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
     }
 
     controller.addObserver(this);
+    
   }
 
   @override
@@ -432,9 +432,11 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                                                             RoundButtonType.red,
                                                         onPressed: () {
                                                           context.pop();
+                                                          
+                                                           apiCancelRide();
 
-                                                          context.push(
-                                                              const ReasonView());
+                                                          // context.push(
+                                                          //     const ReasonView());
                                                         }),
                                                     const SizedBox(
                                                       height: 15,
@@ -848,33 +850,61 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
       ),
     );
 
-    await controller.setStaticPosition([
-      GeoPoint(
-          latitude: double.tryParse(rideObj["pickup_lat"].toString()) ?? 0.0,
-          longitude: double.tryParse(rideObj["pickup_long"].toString()) ?? 0.0)
-    ], "pickup");
+   
 
-    await controller.setStaticPosition([
-      GeoPoint(
-          latitude: double.tryParse(rideObj["drop_lat"].toString()) ?? 0.0,
-          longitude: double.tryParse(rideObj["drop_long"].toString()) ?? 0.0)
-    ], "dropoff");
+    
 
     loadMapRoad();
   }
 
   void loadMapRoad() async {
-    await controller.drawRoad(
+
+    if( rideObj["booking_status"] == bsGoUser ||  rideObj["booking_status"] == bsWaitUser) {
+      // Current to Pickup Location Road Draw
+       await controller.setStaticPosition([
         GeoPoint(
             latitude: double.tryParse(rideObj["pickup_lat"].toString()) ?? 0.0,
             longitude:
-                double.tryParse(rideObj["pickup_long"].toString()) ?? 0.0),
+                double.tryParse(rideObj["pickup_long"].toString()) ?? 0.0)
+      ], "pickup");
+
+      await controller.drawRoad(
+          GeoPoint(
+              latitude:
+                  LocationHelper.shared().lastLocation?.latitude ?? 0.0  ,
+              longitude:
+                  LocationHelper.shared().lastLocation?.longitude ?? 0.0),
+          GeoPoint(
+              latitude: double.tryParse(rideObj["pickup_lat"].toString()) ?? 0.0,
+              longitude:
+                  double.tryParse(rideObj["pickup_long"].toString()) ?? 0.0),
+          roadType: RoadType.car,
+          roadOption: const RoadOption(
+              roadColor: Colors.blueAccent, roadBorderWidth: 3));
+
+    }else{
+      // Current Location to Drop Off Location Draw Road
+      await controller.setStaticPosition([
         GeoPoint(
             latitude: double.tryParse(rideObj["drop_lat"].toString()) ?? 0.0,
-            longitude: double.tryParse(rideObj["drop_long"].toString()) ?? 0.0),
-        roadType: RoadType.car,
-        roadOption:
-            const RoadOption(roadColor: Colors.blueAccent, roadBorderWidth: 3));
+            longitude: double.tryParse(rideObj["drop_long"].toString()) ?? 0.0)
+      ], "dropoff");
+
+      await controller.drawRoad(
+         GeoPoint(
+              latitude: LocationHelper.shared().lastLocation?.latitude ?? 0.0,
+              longitude:
+                  LocationHelper.shared().lastLocation?.longitude ?? 0.0),
+          GeoPoint(
+              latitude: double.tryParse(rideObj["drop_lat"].toString()) ?? 0.0,
+              longitude:
+                  double.tryParse(rideObj["drop_long"].toString()) ?? 0.0),
+          roadType: RoadType.car,
+          roadOption: const RoadOption(
+              roadColor: Colors.blueAccent, roadBorderWidth: 3));
+    }
+
+    
   }
 
   @override
@@ -898,6 +928,30 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
         if (mounted) {
           setState(() {});
         }
+      } else {
+        mdShowAlert(Globs.appName,
+            responseObj[KKey.message] as String? ?? MSG.fail, () {});
+      }
+    }, failure: (err) async {
+      Globs.hideHUD();
+      mdShowAlert(Globs.appName, err.toString(), () {});
+    });
+  }
+
+   void apiCancelRide() {
+    Globs.showHUD();
+    ServiceCall.post({"booking_id": rideObj["booking_id"].toString(), "booking_status":  rideObj["booking_status"].toString()  },
+        SVKey.svRideCancel, isTokenApi: true,
+        withSuccess: (responseObj) async {
+      Globs.hideHUD();
+
+      if (responseObj[KKey.status] == "1") {
+        
+          mdShowAlert(Globs.appName,
+            responseObj[KKey.message] as String? ?? MSG.success, () {
+              context.pop();
+            });
+        
       } else {
         mdShowAlert(Globs.appName,
             responseObj[KKey.message] as String? ?? MSG.fail, () {});

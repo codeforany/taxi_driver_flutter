@@ -118,6 +118,8 @@ class SVKey {
     static const svDriverWaitUser = "${baseUrl}driver_wait_user";
     static const svRideStart = "${baseUrl}ride_start";
     static const svRideStop = "${baseUrl}ride_stop";
+    static const svRideCancel = "${baseUrl}driver_cancel_ride";
+    
 }
 
 class KKey {
