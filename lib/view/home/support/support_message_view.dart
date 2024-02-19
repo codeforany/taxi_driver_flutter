@@ -1,4 +1,5 @@
 import 'package:bubble/bubble.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:taxi_driver/common/color_extension.dart';
 import 'package:taxi_driver/common/common_extension.dart';
@@ -60,10 +61,11 @@ class _SupportMessageViewState extends State<SupportMessageView> {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(25),
-              child: Image.asset(
-                "assets/img/u1.png",
-                width: 40,
-                height: 40,
+              child: CachedNetworkImage(
+                imageUrl: widget.uObj["image"] as String? ?? "",
+                width: 50,
+                height: 50,
+                fit: BoxFit.contain,
               ),
             ),
             const SizedBox(
@@ -71,7 +73,7 @@ class _SupportMessageViewState extends State<SupportMessageView> {
             ),
             Expanded(
               child: Text(
-                "User1",
+                widget.uObj["name"] as String? ?? "",
                 style: TextStyle(
                   color: TColor.primaryText,
                   fontWeight: FontWeight.w700,

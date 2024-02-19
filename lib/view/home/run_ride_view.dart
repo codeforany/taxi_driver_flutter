@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -12,6 +13,7 @@ import 'package:taxi_driver/common/service_call.dart';
 import 'package:taxi_driver/common/socket_manager.dart';
 import 'package:taxi_driver/common_widget/icon_title_button.dart';
 import 'package:taxi_driver/common_widget/round_button.dart';
+import 'package:taxi_driver/view/home/support/support_message_view.dart';
 import 'package:taxi_driver/view/home/tip_detail_view.dart';
 
 class RunRideView extends StatefulWidget {
@@ -45,6 +47,9 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
   late MapController controller;
   //23.02756018230479, 72.58131973941731
   //23.02726396414328, 72.5851928489523
+
+  String timeCount = "...";
+  String km = "...";
 
   @override
   void initState() {
@@ -302,7 +307,7 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  "2 min",
+                                  "$timeCount min",
                                   style: TextStyle(
                                       color: TColor.primaryText,
                                       fontSize: 18,
@@ -311,16 +316,20 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                                 const SizedBox(
                                   width: 15,
                                 ),
-                                Image.asset(
-                                  "assets/img/ride_user_profile.png",
-                                  width: 35,
-                                  height: 35,
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(17.5),
+                                  child: CachedNetworkImage(
+                                    imageUrl: rideObj["image"] as String? ?? "",
+                                    width: 35,
+                                    height: 35,
+                                    fit: BoxFit.contain,
+                                  ),
                                 ),
                                 const SizedBox(
                                   width: 15,
                                 ),
                                 Text(
-                                  "0.5 mi",
+                                  "$km km",
                                   style: TextStyle(
                                       color: TColor.primaryText,
                                       fontSize: 18,
@@ -340,7 +349,7 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                         ),
                       ),
                       Text(
-                        "Picking up ${rideObj["name"] ?? ""}",
+                        "${statusName()} ${rideObj["name"] ?? ""}",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: TColor.secondaryText,
@@ -361,6 +370,129 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                         const SizedBox(
                           height: 8,
                         ),
+                      if (isOpen &&
+                          (rideObj["booking_status"] == bsWaitUser ||
+                              rideObj["booking_status"] == bsStart))
+                        Padding(
+                          padding: const EdgeInsets.all(15),
+                          child: Row(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(5),
+                                child: CachedNetworkImage(
+                                  imageUrl: rideObj["image"] as String? ?? "",
+                                  width: 50,
+                                  height: 50,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 15,
+                              ),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          rideObj["name"] as String? ?? "",
+                                          style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w700),
+                                        ),
+                                        Text(
+                                          statusText(),
+                                          style: TextStyle(
+                                              color: statusColor(),
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w700),
+                                        ),
+                                      ],
+                                    ),
+                                    Text(
+                                      "${rideObj["mobile_code"] as String? ?? ""} ${rideObj["mobile"] as String? ?? ""}",
+                                      style: TextStyle(
+                                          color: TColor.secondaryText,
+                                          fontSize: 14),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      if (isOpen &&
+                          (rideObj["booking_status"] == bsWaitUser ||
+                              rideObj["booking_status"] == bsStart))
+                        const Divider(
+                          height: 0.5,
+                          endIndent: 20,
+                          indent: 20,
+                        ),
+                      if (isOpen &&
+                          (rideObj["booking_status"] == bsWaitUser ||
+                              rideObj["booking_status"] == bsStart))
+                        const SizedBox(
+                          height: 8,
+                        ),
+                      if (isOpen)
+                        Padding(
+                          padding: const EdgeInsets.all(15),
+                          child: Row(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(5),
+                                child: CachedNetworkImage(
+                                  imageUrl: rideObj["icon"] as String? ?? "",
+                                  width: 50,
+                                  height: 50,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 15,
+                              ),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "${rideObj["brand_name"] as String? ?? ""} - ${rideObj["model_name"] as String? ?? ""} - ${rideObj["series_name"] as String? ?? ""}",
+                                      style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700),
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "No Plat: ${rideObj["car_number"] as String? ?? ""}",
+                                          style: TextStyle(
+                                              color: TColor.secondaryText,
+                                              fontSize: 14),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      if (isOpen)
+                        const Divider(
+                          height: 0.5,
+                          endIndent: 20,
+                          indent: 20,
+                        ),
+                      if (isOpen)
+                        const SizedBox(
+                          height: 8,
+                        ),
                       if (isOpen)
                         Row(
                           children: [
@@ -368,7 +500,13 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                               child: IconTitleButton(
                                 icon: "assets/img/chat.png",
                                 title: "Chat",
-                                onPressed: () {},
+                                onPressed: () {
+                                  context.push(SupportMessageView(uObj: {
+                                    "user_id": rideObj["user_id"],
+                                    "name": rideObj["name"],
+                                    "image": rideObj["image"]
+                                  }));
+                                },
                               ),
                             ),
                             Expanded(
@@ -877,7 +1015,7 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                 double.tryParse(rideObj["pickup_long"].toString()) ?? 0.0)
       ], "pickup");
 
-      await controller.drawRoad(
+      var roadInfo = await controller.drawRoad(
           GeoPoint(
               latitude: LocationHelper.shared().lastLocation?.latitude ?? 0.0,
               longitude:
@@ -890,6 +1028,12 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
           roadType: RoadType.car,
           roadOption: const RoadOption(
               roadColor: Colors.blueAccent, roadBorderWidth: 3));
+
+      timeCount = ((roadInfo.duration ?? 0.0) / 60.0).toStringAsFixed(1);
+      km = ((roadInfo.distance ?? 0.0)).toStringAsFixed(1);
+
+      timeCount = ((roadInfo.duration ?? 0.0) / 60.0).toStringAsFixed(1);
+      km = ((roadInfo.distance ?? 0.0)).toStringAsFixed(1);
     } else {
       // Current Location to Drop Off Location Draw Road
       await controller.setStaticPosition([
@@ -898,7 +1042,7 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
             longitude: double.tryParse(rideObj["drop_long"].toString()) ?? 0.0)
       ], "dropoff");
 
-      await controller.drawRoad(
+      var roadInfo = await controller.drawRoad(
           GeoPoint(
               latitude: LocationHelper.shared().lastLocation?.latitude ?? 0.0,
               longitude:
@@ -910,6 +1054,12 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
           roadType: RoadType.car,
           roadOption: const RoadOption(
               roadColor: Colors.blueAccent, roadBorderWidth: 3));
+      timeCount = ((roadInfo.duration ?? 0.0) / 60.0).toStringAsFixed(1);
+      km = ((roadInfo.distance ?? 0.0)).toStringAsFixed(1);
+    }
+
+    if (mounted) {
+      setState(() {});
     }
   }
 
@@ -1040,5 +1190,60 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
       Globs.hideHUD();
       mdShowAlert(Globs.appName, err.toString(), () {});
     });
+  }
+
+  String statusName() {
+    switch (rideObj["booking_status"]) {
+      case 2:
+        return "Pickup Up ";
+      case 3:
+        return "Waiting For ";
+      case 4:
+        return "Ride Started With";
+      case 5:
+        return "Ride Complete With";
+      case 6:
+        return "Ride Cancel";
+      default:
+        return "Finding Driver Near By";
+    }
+  }
+
+  String statusText() {
+    switch (rideObj["booking_status"]) {
+      case 2:
+        return "On Way";
+      case 3:
+        return "Waiting";
+      case 4:
+        return "Started";
+      case 5:
+        return "Completed";
+      case 6:
+        return "Cancel";
+      case 7:
+        return "No Drivers";
+      default:
+        return "Pending";
+    }
+  }
+
+  Color statusColor() {
+    switch (rideObj["booking_status"]) {
+      case 2:
+        return Colors.green;
+      case 3:
+        return Colors.orange;
+      case 4:
+        return Colors.green;
+      case 5:
+        return Colors.green;
+      case 6:
+        return Colors.red;
+      case 7:
+        return Colors.red;
+      default:
+        return Colors.blue;
+    }
   }
 }
