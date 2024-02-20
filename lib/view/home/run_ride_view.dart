@@ -412,11 +412,28 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                                         ),
                                       ],
                                     ),
-                                    Text(
-                                      "${rideObj["mobile_code"] as String? ?? ""} ${rideObj["mobile"] as String? ?? ""}",
-                                      style: TextStyle(
-                                          color: TColor.secondaryText,
-                                          fontSize: 14),
+
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "${rideObj["mobile_code"] as String? ?? ""} ${rideObj["mobile"] as String? ?? ""}",
+                                          style: TextStyle(
+                                              color: TColor.secondaryText,
+                                              fontSize: 14),
+                                        ),
+                                        Text(
+                                          (rideObj["payment_type"] ?? 1) == 1
+                                              ? "COD"
+                                              : "Online",
+                                          style: TextStyle(
+                                            color: TColor.secondaryText,
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
@@ -1005,6 +1022,7 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
   }
 
   void loadMapRoad() async {
+    await controller.clearAllRoads();
     if (rideObj["booking_status"] == bsGoUser ||
         rideObj["booking_status"] == bsWaitUser) {
       // Current to Pickup Location Road Draw
@@ -1143,9 +1161,7 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
         rideObj = responseObj[KKey.payload] as Map? ?? {};
         LocationHelper.shared().startRideLocationSave(
             rideObj["booking_id"] as int? ?? 0, startLocation);
-        if (mounted) {
-          setState(() {});
-        }
+        loadMapRoad();
       } else {
         mdShowAlert(Globs.appName,
             responseObj[KKey.message] as String? ?? MSG.fail, () {});

@@ -86,7 +86,7 @@ class _UserRunRideViewState extends State<UserRunRideView>
     });
 
     SocketManager.shared.socket?.on("driver_wait_user", (data) {
-      print("driver_cancel_ride socket get : ${data.toString()}");
+      print("driver_wait_user socket get : ${data.toString()}");
       if (data[KKey.status] == "1") {
         if (data[KKey.payload]["booking_id"] == rideObj["booking_id"]) {
           rideObj["booking_status"] = data[KKey.payload]["booking_status"];
@@ -99,14 +99,28 @@ class _UserRunRideViewState extends State<UserRunRideView>
     });
 
     SocketManager.shared.socket?.on("ride_start", (data) {
-      print("driver_cancel_ride socket get : ${data.toString()}");
+      print("ride_start socket get : ${data.toString()}");
       if (data[KKey.status] == "1") {
         if (data[KKey.payload]["booking_id"] == rideObj["booking_id"]) {
           rideObj["booking_status"] = data[KKey.payload]["booking_status"];
 
-          if (mounted) {
-            setState(() {});
-          }
+          loadMapRoad();
+        }
+      }
+    });
+
+    SocketManager.shared.socket?.on("ride_stop", (data) {
+      print("ride_stop socket get : ${data.toString()}");
+      if (data[KKey.status] == "1") {
+        if (data[KKey.payload]["booking_id"] == rideObj["booking_id"]) {
+          rideObj["booking_status"] = data[KKey.payload]["booking_status"];
+          rideObj["amt"] = data[KKey.payload]["amount"].toString();
+          rideObj["tax_amt"] = data[KKey.payload]["tax_amount"].toString();
+          rideObj["duration"] = data[KKey.payload]["duration"];
+          rideObj["total_distance"] = data[KKey.payload]["total_distance"].toString();
+          rideObj["toll_tax"] = data[KKey.payload]["toll_tax"].toString();
+          loadMapRoad();
+          showRideCompletedPopup();
         }
       }
     });
@@ -437,11 +451,27 @@ class _UserRunRideViewState extends State<UserRunRideView>
                                         ),
                                       ],
                                     ),
-                                    Text(
-                                      "${rideObj["mobile_code"] as String? ?? ""} ${rideObj["mobile"] as String? ?? ""}",
-                                      style: TextStyle(
-                                          color: TColor.secondaryText,
-                                          fontSize: 14),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "${rideObj["mobile_code"] as String? ?? ""} ${rideObj["mobile"] as String? ?? ""}",
+                                          style: TextStyle(
+                                              color: TColor.secondaryText,
+                                              fontSize: 14),
+                                        ),
+                                        Text(
+                                          (rideObj["payment_type"] ?? 1) == 1
+                                              ? "COD"
+                                              : "Online",
+                                          style: TextStyle(
+                                            color: TColor.secondaryText,
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
@@ -542,9 +572,7 @@ class _UserRunRideViewState extends State<UserRunRideView>
                               child: IconTitleButton(
                                 icon: "assets/img/message.png",
                                 title: "Message",
-                                onPressed: () {
-                                  
-                                },
+                                onPressed: () {},
                               ),
                             ),
                             Expanded(
@@ -968,5 +996,241 @@ class _UserRunRideViewState extends State<UserRunRideView>
       default:
         return Colors.blue;
     }
+  }
+
+  void showRideCompletedPopup() async {
+    var taxAmt = double.tryParse(rideObj["tax_amt"] ?? "0.0") ?? 0.0;
+    var tollAmt = double.tryParse(rideObj["toll_tax"] ?? "0.0") ?? 0.0;
+    var payableAmt = double.tryParse(rideObj["amt"] ?? "0.0") ?? 0.0;
+    var totalAmt = payableAmt - tollAmt - taxAmt;
+
+    await showModalBottomSheet(
+        backgroundColor: Colors.transparent,
+        barrierColor: Colors.transparent,
+        isScrollControlled: true,
+        context: context,
+        builder: (context) {
+          return Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
+              BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                child: Container(
+                  color: Colors.black38,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 10,
+                          offset: Offset(0, -5))
+                    ]),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Ride Completed",
+                      style: TextStyle(
+                        color: TColor.primaryText,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    const Divider(),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Payment Mode:",
+                          style: TextStyle(
+                              color: TColor.primaryText, fontSize: 20),
+                        ),
+                        Text(
+                          (rideObj["payment_type"] ?? 1) == 1 ? "COD" : "ONLINE",
+                          style: TextStyle(
+                            color: TColor.primary,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Total Distance:",
+                          style: TextStyle(
+                              color: TColor.primaryText, fontSize: 17),
+                        ),
+                        Text(
+                          "${(double.tryParse(rideObj["total_distance"] ?? "0") ?? 0.0).toStringAsFixed(2)} KM",
+                          style: TextStyle(
+                            color: TColor.primaryText,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Total Duration:",
+                          style: TextStyle(
+                              color: TColor.primaryText, fontSize: 17),
+                        ),
+                        Text(
+                          rideObj["duration"] ?? " 00:00",
+                          style: TextStyle(
+                            color: TColor.primaryText,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    const Divider(),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Total Amount:",
+                          style: TextStyle(
+                              color: TColor.primaryText, fontSize: 17),
+                        ),
+                        Text(
+                          "\$${totalAmt.toStringAsFixed(2)}",
+                          style: TextStyle(
+                            color: TColor.primaryText,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Tax Amount:",
+                          style: TextStyle(
+                              color: TColor.primaryText, fontSize: 17),
+                        ),
+                        Text(
+                          "+\$${taxAmt.toStringAsFixed(2)}",
+                          style: TextStyle(
+                            color: TColor.primaryText,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Toll Tax:",
+                          style: TextStyle(
+                              color: TColor.primaryText, fontSize: 17),
+                        ),
+                        Text(
+                          "+\$${tollAmt.toStringAsFixed(2)}",
+                          style: TextStyle(
+                            color: TColor.primaryText,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Container(
+                          width: 90,
+                          height: 2,
+                          color: TColor.primaryText,
+                        )
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Payable Amount:",
+                          style: TextStyle(
+                              color: TColor.primaryText,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700),
+                        ),
+                        Text(
+                          "\$${payableAmt.toStringAsFixed(2)}",
+                          style: TextStyle(
+                            color: TColor.primaryText,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    RoundButton(
+                        title: "Yes, Accept Toll Tax",
+                        type: RoundButtonType.red,
+                        onPressed: () {
+                          context.pop();
+                          context.pop();
+                        }),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    RoundButton(
+                        title: "No",
+                        onPressed: () {
+                          context.pop();
+                          context.pop();
+                        }),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                  ],
+                ),
+              )
+            ],
+          );
+        });
+
+    
   }
 }
