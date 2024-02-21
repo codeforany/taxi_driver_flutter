@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taxi_driver/common/color_extension.dart';
 import 'package:taxi_driver/common/globs.dart';
+import 'package:taxi_driver/common/service_call.dart';
 import 'package:taxi_driver/common_widget/icon_title_cell.dart';
 import 'package:taxi_driver/common_widget/menu_row.dart';
 import 'package:taxi_driver/view/login/sign_in_view.dart';
@@ -11,6 +12,7 @@ import 'package:taxi_driver/view/menu/service_type_view.dart';
 import 'package:taxi_driver/view/menu/settings_view.dart';
 import 'package:taxi_driver/view/menu/summary_view.dart';
 import 'package:taxi_driver/view/menu/wallet_view.dart';
+import 'package:taxi_driver/view/user/user_my_rides_view.dart';
 
 class MenuView extends StatefulWidget {
   const MenuView({super.key});
@@ -215,6 +217,17 @@ class _MenuViewState extends State<MenuView> {
                       title: "Home",
                       icon: "assets/img/home.png",
                       onPressed: () {}),
+                  MenuRow(
+                      title: "My Rides",
+                      icon: "assets/img/summary.png",
+                      onPressed: () {
+                        if(ServiceCall.userType == 1) {
+                          context.push(const UserMyRidesView());
+                        }else{
+
+                        }
+                        
+                      }),
                   MenuRow(
                       title: "Summary",
                       icon: "assets/img/summary.png",
