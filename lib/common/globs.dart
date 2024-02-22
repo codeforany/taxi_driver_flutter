@@ -122,6 +122,7 @@ class SVKey {
     static const svUserRideCancel = "${baseUrl}user_cancel_ride";
     
     static const svUserAllRides = "${baseUrl}user_all_ride_list";
+    static const svDriverAllRides = "${baseUrl}driver_all_ride_list";
 }
 
 class KKey {

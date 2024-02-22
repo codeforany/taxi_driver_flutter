@@ -4,7 +4,7 @@ import 'package:taxi_driver/common/globs.dart';
 import 'package:taxi_driver/common/service_call.dart';
 import 'package:taxi_driver/common_widget/icon_title_cell.dart';
 import 'package:taxi_driver/common_widget/menu_row.dart';
-import 'package:taxi_driver/view/login/sign_in_view.dart';
+import 'package:taxi_driver/view/home/driver_my_rides_view.dart';
 import 'package:taxi_driver/view/login/welcome_view.dart';
 import 'package:taxi_driver/view/menu/earning_view.dart';
 import 'package:taxi_driver/view/menu/ratings_view.dart';
@@ -224,7 +224,7 @@ class _MenuViewState extends State<MenuView> {
                         if(ServiceCall.userType == 1) {
                           context.push(const UserMyRidesView());
                         }else{
-
+                          context.push(const DriverMyRidesView());
                         }
                         
                       }),

@@ -8,7 +8,6 @@ import 'package:flutter_timer_countdown/flutter_timer_countdown.dart';
 import 'package:taxi_driver/common/color_extension.dart';
 import 'package:taxi_driver/common/common_extension.dart';
 import 'package:taxi_driver/common/globs.dart';
-import 'package:taxi_driver/common/location_helper.dart';
 import 'package:taxi_driver/common/service_call.dart';
 import 'package:taxi_driver/common/socket_manager.dart';
 import 'package:taxi_driver/common_widget/icon_title_button.dart';
