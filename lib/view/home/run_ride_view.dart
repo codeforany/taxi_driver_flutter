@@ -50,7 +50,7 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
 
   String timeCount = "...";
   String km = "...";
-
+  double ratingVal = 5.0;
   @override
   void initState() {
     // TODO: implement initState
@@ -889,7 +889,7 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                         height: 15,
                       ),
                       Text(
-                        "Rockdean",
+                        rideObj["name"] as String? ?? "",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: TColor.primaryText,
@@ -901,7 +901,7 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                         height: 8,
                       ),
                       RatingBar.builder(
-                        initialRating: 5,
+                        initialRating: ratingVal,
                         minRating: 1,
                         direction: Axis.horizontal,
                         allowHalfRating: true,
@@ -913,6 +913,7 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                           color: Colors.amber,
                         ),
                         onRatingUpdate: (rating) {
+                          ratingVal = rating;
                           print(rating);
                         },
                       ),
@@ -924,7 +925,8 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
                         child: RoundButton(
                             title: "RATE RIDER",
                             onPressed: () {
-                              context.push(const TipDetailsView());
+                              apiSubmitRate();
+                              // context.push(const TipDetailsView());
                             }),
                       ),
                       const SizedBox(
@@ -1206,6 +1208,35 @@ class _RunRideViewState extends State<RunRideView> with OSMMixinObserver {
       Globs.hideHUD();
       mdShowAlert(Globs.appName, err.toString(), () {});
     });
+  }
+
+  void apiSubmitRate() {
+    Globs.showHUD();
+    ServiceCall.post(
+      {
+        "booking_id": rideObj["booking_id"].toString(),
+        "rating": ratingVal.toString(),
+        "comment": "",
+      },
+      SVKey.svRideRating,
+      isTokenApi: true,
+      withSuccess: (responseObj) async {
+        Globs.hideHUD();
+        if (responseObj[KKey.status] == "1") {
+          mdShowAlert(Globs.appName,
+              responseObj[KKey.message] as String? ?? MSG.success, () {
+            context.pop();
+          });
+        } else {
+          mdShowAlert(Globs.appName,
+              responseObj[KKey.message] as String? ?? MSG.fail, () {});
+        }
+      },
+      failure: (err) async {
+        Globs.hideHUD();
+        mdShowAlert(Globs.appName, err.toString(), () {});
+      },
+    );
   }
 
   String statusName() {

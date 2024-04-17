@@ -51,6 +51,8 @@ class _UserRunRideViewState extends State<UserRunRideView>
   String timeCount = "...";
   String km = "...";
 
+  double ratingVal = 5.0;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -116,9 +118,15 @@ class _UserRunRideViewState extends State<UserRunRideView>
           rideObj["amt"] = data[KKey.payload]["amount"].toString();
           rideObj["tax_amt"] = data[KKey.payload]["tax_amount"].toString();
           rideObj["duration"] = data[KKey.payload]["duration"];
-          rideObj["total_distance"] = data[KKey.payload]["total_distance"].toString();
+          rideObj["total_distance"] =
+              data[KKey.payload]["total_distance"].toString();
           rideObj["toll_tax"] = data[KKey.payload]["toll_tax"].toString();
           loadMapRoad();
+          
+          if(mounted) {
+            setState(() {});
+          }
+          
           showRideCompletedPopup();
         }
       }
@@ -716,7 +724,7 @@ class _UserRunRideViewState extends State<UserRunRideView>
                         height: 15,
                       ),
                       Text(
-                        "Rockdean",
+                        rideObj["name"] as String? ?? "",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: TColor.primaryText,
@@ -728,7 +736,7 @@ class _UserRunRideViewState extends State<UserRunRideView>
                         height: 8,
                       ),
                       RatingBar.builder(
-                        initialRating: 5,
+                        initialRating: ratingVal,
                         minRating: 1,
                         direction: Axis.horizontal,
                         allowHalfRating: true,
@@ -740,6 +748,7 @@ class _UserRunRideViewState extends State<UserRunRideView>
                           color: Colors.amber,
                         ),
                         onRatingUpdate: (rating) {
+                          ratingVal = rating;
                           print(rating);
                         },
                       ),
@@ -751,7 +760,8 @@ class _UserRunRideViewState extends State<UserRunRideView>
                         child: RoundButton(
                             title: "RATE RIDER",
                             onPressed: () {
-                              context.push(const TipDetailsView());
+                              apiSubmitRate();
+                              // context.push(const TipDetailsView());
                             }),
                       ),
                       const SizedBox(
@@ -940,6 +950,35 @@ class _UserRunRideViewState extends State<UserRunRideView>
     });
   }
 
+  void apiSubmitRate() {
+    Globs.showHUD();
+    ServiceCall.post(
+      {
+        "booking_id": rideObj["booking_id"].toString(),
+        "rating": ratingVal.toString(),
+        "comment": "",
+      },
+      SVKey.svRideRating,
+      isTokenApi: true,
+      withSuccess: (responseObj) async {
+        Globs.hideHUD();
+        if (responseObj[KKey.status] == "1") {
+          mdShowAlert(Globs.appName,
+              responseObj[KKey.message] as String? ?? MSG.success, () {
+            context.pop();
+          });
+        } else {
+          mdShowAlert(Globs.appName,
+              responseObj[KKey.message] as String? ?? MSG.fail, () {});
+        }
+      },
+      failure: (err) async {
+        Globs.hideHUD();
+        mdShowAlert(Globs.appName, err.toString(), () {});
+      },
+    );
+  }
+
   String statusName() {
     switch (rideObj["booking_status"]) {
       case 2:
@@ -1059,7 +1098,9 @@ class _UserRunRideViewState extends State<UserRunRideView>
                               color: TColor.primaryText, fontSize: 20),
                         ),
                         Text(
-                          (rideObj["payment_type"] ?? 1) == 1 ? "COD" : "ONLINE",
+                          (rideObj["payment_type"] ?? 1) == 1
+                              ? "COD"
+                              : "ONLINE",
                           style: TextStyle(
                             color: TColor.primary,
                             fontSize: 20,
@@ -1208,7 +1249,7 @@ class _UserRunRideViewState extends State<UserRunRideView>
                         title: "Yes, Accept Toll Tax",
                         type: RoundButtonType.red,
                         onPressed: () {
-                          context.pop();
+                          // context.pop();
                           context.pop();
                         }),
                     const SizedBox(
@@ -1217,7 +1258,7 @@ class _UserRunRideViewState extends State<UserRunRideView>
                     RoundButton(
                         title: "No",
                         onPressed: () {
-                          context.pop();
+                          // context.pop();
                           context.pop();
                         }),
                     const SizedBox(
@@ -1229,7 +1270,5 @@ class _UserRunRideViewState extends State<UserRunRideView>
             ],
           );
         });
-
-    
   }
 }
