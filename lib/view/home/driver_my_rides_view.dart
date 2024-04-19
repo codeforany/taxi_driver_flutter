@@ -5,6 +5,7 @@ import 'package:taxi_driver/common/common_extension.dart';
 import 'package:taxi_driver/common/globs.dart';
 import 'package:taxi_driver/common/service_call.dart';
 import 'package:taxi_driver/view/home/run_ride_view.dart';
+import 'package:taxi_driver/view/home/tip_detail_view.dart';
 
 class DriverMyRidesView extends StatefulWidget {
   const DriverMyRidesView({super.key});
@@ -71,95 +72,71 @@ class _DriverMyRidesViewState extends State<DriverMyRidesView> {
                 double.tryParse(rObj["amount"].toString()) ?? 0.0;
             var driverAmount =
                 double.tryParse(rObj["driver_amt"].toString()) ?? 0.0;
-            return Container(
-              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(5),
-                  boxShadow: const [
-                    BoxShadow(color: Colors.black12, blurRadius: 2)
-                  ]),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      CachedNetworkImage(
-                        imageUrl: rObj["icon"] as String? ?? "",
-                        width: 40,
-                        height: 40,
-                        fit: BoxFit.contain,
-                      ),
-                      const SizedBox(
-                        width: 15,
-                      ),
-                      Expanded(
-                          child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            rObj["service_name"] as String? ?? "",
-                            style: TextStyle(
-                                color: TColor.primaryText,
-                                fontSize: 17,
-                                fontWeight: FontWeight.w800),
-                          ),
-                          Text(
-                            statusWiseDateTime(rObj),
-                            style: TextStyle(
-                                color: TColor.secondaryText, fontSize: 12),
-                          )
-                        ],
-                      )),
-                      Text(
-                        statusText(rObj),
-                        style: TextStyle(
-                            color: statusColor(rObj),
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700),
-                      )
-                    ],
-                  ),
-                  const Divider(),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        width: 10,
-                        height: 10,
-                        decoration: BoxDecoration(
-                            color: TColor.secondary,
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
-                      const SizedBox(
-                        width: 15,
-                      ),
-                      Expanded(
-                        child: Text(
-                          rObj["pickup_address"] as String? ?? "",
-                          maxLines: 2,
-                          style: TextStyle(
-                            color: TColor.primaryText,
-                            fontSize: 15,
-                          ),
+            return InkWell(
+              onTap: () {
+                context.push(TipDetailsView(obj: rObj));
+              },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(5),
+                    boxShadow: const [
+                      BoxShadow(color: Colors.black12, blurRadius: 2)
+                    ]),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        CachedNetworkImage(
+                          imageUrl: rObj["icon"] as String? ?? "",
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.contain,
                         ),
-                      ),
-                    ],
-                  ),
-                  if (rObj["booking_status"] >= bsStart)
+                        const SizedBox(
+                          width: 15,
+                        ),
+                        Expanded(
+                            child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              rObj["service_name"] as String? ?? "",
+                              style: TextStyle(
+                                  color: TColor.primaryText,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w800),
+                            ),
+                            Text(
+                              statusWiseDateTime(rObj),
+                              style: TextStyle(
+                                  color: TColor.secondaryText, fontSize: 12),
+                            )
+                          ],
+                        )),
+                        Text(
+                          statusText(rObj),
+                          style: TextStyle(
+                              color: statusColor(rObj),
+                              fontSize: 17,
+                              fontWeight: FontWeight.w700),
+                        )
+                      ],
+                    ),
+                    const Divider(),
                     const SizedBox(
                       height: 8,
                     ),
-                  if (rObj["booking_status"] >= bsStart)
                     Row(
                       children: [
                         Container(
                           width: 10,
                           height: 10,
                           decoration: BoxDecoration(
-                              color: TColor.primary,
+                              color: TColor.secondary,
                               borderRadius: BorderRadius.circular(10)),
                         ),
                         const SizedBox(
@@ -167,7 +144,7 @@ class _DriverMyRidesViewState extends State<DriverMyRidesView> {
                         ),
                         Expanded(
                           child: Text(
-                            rObj["drop_address"] as String? ?? "",
+                            rObj["pickup_address"] as String? ?? "",
                             maxLines: 2,
                             style: TextStyle(
                               color: TColor.primaryText,
@@ -177,97 +154,127 @@ class _DriverMyRidesViewState extends State<DriverMyRidesView> {
                         ),
                       ],
                     ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  if (rObj["booking_status"] == bsComplete)
-                    Column(
-                      children: [
-                        const Divider(),
-                        const SizedBox(
-                          height: 8,
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              "Total Distance: ",
-                              maxLines: 2,
-                              style: TextStyle(
-                                  color: TColor.primaryText,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                            Text(
-                              "${km.toStringAsFixed(1)} KM",
-                              maxLines: 2,
-                              style: TextStyle(
-                                color: TColor.primaryText,
-                                fontSize: 15,
-                              ),
-                            ),
-                            const Spacer(),
-                            Text(
-                              "Duration: ",
-                              maxLines: 2,
-                              style: TextStyle(
-                                  color: TColor.primaryText,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                            Text(
-                              rObj["duration"].toString(),
+                    if (rObj["booking_status"] >= bsStart)
+                      const SizedBox(
+                        height: 8,
+                      ),
+                    if (rObj["booking_status"] >= bsStart)
+                      Row(
+                        children: [
+                          Container(
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                                color: TColor.primary,
+                                borderRadius: BorderRadius.circular(10)),
+                          ),
+                          const SizedBox(
+                            width: 15,
+                          ),
+                          Expanded(
+                            child: Text(
+                              rObj["drop_address"] as String? ?? "",
                               maxLines: 2,
                               style: TextStyle(
                                 color: TColor.primaryText,
                                 fontSize: 15,
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Driver Amount: ",
-                              style: TextStyle(
+                          ),
+                        ],
+                      ),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    if (rObj["booking_status"] == bsComplete)
+                      Column(
+                        children: [
+                          const Divider(),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          Row(
+                            children: [
+                              Text(
+                                "Total Distance: ",
+                                maxLines: 2,
+                                style: TextStyle(
+                                    color: TColor.primaryText,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                              Text(
+                                "${km.toStringAsFixed(1)} KM",
+                                maxLines: 2,
+                                style: TextStyle(
                                   color: TColor.primaryText,
                                   fontSize: 15,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                            Text(
-                              "\$${driverAmount.toStringAsFixed(2)}",
-                              style: TextStyle(
-                                  color: TColor.secondary,
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Total Amount: ",
-                              style: TextStyle(
+                                ),
+                              ),
+                              const Spacer(),
+                              Text(
+                                "Duration: ",
+                                maxLines: 2,
+                                style: TextStyle(
+                                    color: TColor.primaryText,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                              Text(
+                                rObj["duration"].toString(),
+                                maxLines: 2,
+                                style: TextStyle(
                                   color: TColor.primaryText,
                                   fontSize: 15,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                            Text(
-                              "\$${rideTotalAmount.toStringAsFixed(2)}",
-                              style: TextStyle(
-                                  color: TColor.primary,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w800),
-                            ),
-                          ],
-                        ),
-                      ],
-                    )
-                ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 15,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Driver Amount: ",
+                                style: TextStyle(
+                                    color: TColor.primaryText,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                              Text(
+                                "\$${driverAmount.toStringAsFixed(2)}",
+                                style: TextStyle(
+                                    color: TColor.secondary,
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Total Amount: ",
+                                style: TextStyle(
+                                    color: TColor.primaryText,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                              Text(
+                                "\$${rideTotalAmount.toStringAsFixed(2)}",
+                                style: TextStyle(
+                                    color: TColor.primary,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w800),
+                              ),
+                            ],
+                          ),
+                        ],
+                      )
+                  ],
+                ),
               ),
             );
           },

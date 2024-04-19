@@ -4,6 +4,7 @@ import 'package:taxi_driver/common/color_extension.dart';
 import 'package:taxi_driver/common/common_extension.dart';
 import 'package:taxi_driver/common/globs.dart';
 import 'package:taxi_driver/common/service_call.dart';
+import 'package:taxi_driver/view/home/tip_detail_view.dart';
 
 class UserMyRidesView extends StatefulWidget {
   const UserMyRidesView({super.key});
@@ -19,6 +20,7 @@ class _UserMyRidesViewState extends State<UserMyRidesView> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    
     apiAllRidesList();
   }
 
@@ -51,110 +53,115 @@ class _UserMyRidesViewState extends State<UserMyRidesView> {
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
           itemBuilder: (context, index) {
             var rObj = ridesArr[index] as Map? ?? {};
-            return Container(
-              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(5),
-                  boxShadow: const [
-                    BoxShadow(color: Colors.black12, blurRadius: 2)
-                  ]),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      CachedNetworkImage(
-                        imageUrl: rObj["icon"] as String? ?? "",
-                        width: 40,
-                        height: 40,
-                        fit: BoxFit.contain,
-                      ),
-                      const SizedBox(
-                        width: 15,
-                      ),
-                      Expanded(
-                          child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            rObj["service_name"] as String? ?? "",
-                            style: TextStyle(
-                                color: TColor.primaryText,
-                                fontSize: 17,
-                                fontWeight: FontWeight.w800),
-                          ),
-                          Text(
-                            statusWiseDateTime(rObj),
-                            style: TextStyle(
-                                color: TColor.secondaryText, fontSize: 12),
-                          )
-                        ],
-                      )),
-                      Text(
-                        statusText(rObj),
-                        style: TextStyle(
-                            color: statusColor(rObj),
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700),
-                      )
-                    ],
-                  ),
-                  const Divider(),
-
-                 const SizedBox(height: 8,),
-                  Row(
-                    children: [
-                      Container(
-                        width: 10,
-                        height: 10,
-                        decoration: BoxDecoration(
-                            color: TColor.secondary,
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
-                      const SizedBox(
-                        width: 15,
-                      ),
-                      Expanded(
-                        child: Text(
-                          rObj["pickup_address"] as String? ?? "" ,
-                          maxLines: 2,
+            return InkWell(
+              onTap: (){
+                context.push( TipDetailsView(obj: rObj) );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(5),
+                    boxShadow: const [
+                      BoxShadow(color: Colors.black12, blurRadius: 2)
+                    ]),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        CachedNetworkImage(
+                          imageUrl: rObj["icon"] as String? ?? "",
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.contain,
+                        ),
+                        const SizedBox(
+                          width: 15,
+                        ),
+                        Expanded(
+                            child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              rObj["service_name"] as String? ?? "",
+                              style: TextStyle(
+                                  color: TColor.primaryText,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w800),
+                            ),
+                            Text(
+                              statusWiseDateTime(rObj),
+                              style: TextStyle(
+                                  color: TColor.secondaryText, fontSize: 12),
+                            )
+                          ],
+                        )),
+                        Text(
+                          statusText(rObj),
                           style: TextStyle(
-                            color: TColor.primaryText,
-                            fontSize: 15,
+                              color: statusColor(rObj),
+                              fontSize: 17,
+                              fontWeight: FontWeight.w700),
+                        )
+                      ],
+                    ),
+                    const Divider(),
+              
+                   const SizedBox(height: 8,),
+                    Row(
+                      children: [
+                        Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                              color: TColor.secondary,
+                              borderRadius: BorderRadius.circular(10)),
+                        ),
+                        const SizedBox(
+                          width: 15,
+                        ),
+                        Expanded(
+                          child: Text(
+                            rObj["pickup_address"] as String? ?? "" ,
+                            maxLines: 2,
+                            style: TextStyle(
+                              color: TColor.primaryText,
+                              fontSize: 15,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        width: 10,
-                        height: 10,
-                        decoration: BoxDecoration(
-                            color: TColor.primary,
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
-                      const SizedBox(
-                        width: 15,
-                      ),
-                      Expanded(
-                        child: Text(
-                          rObj["drop_address"] as String? ?? "",
-                          maxLines: 2,
-                          style: TextStyle(
-                            color: TColor.primaryText,
-                            fontSize: 15,
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    Row(
+                      children: [
+                        Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                              color: TColor.primary,
+                              borderRadius: BorderRadius.circular(10)),
+                        ),
+                        const SizedBox(
+                          width: 15,
+                        ),
+                        Expanded(
+                          child: Text(
+                            rObj["drop_address"] as String? ?? "",
+                            maxLines: 2,
+                            style: TextStyle(
+                              color: TColor.primaryText,
+                              fontSize: 15,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             );
           },
