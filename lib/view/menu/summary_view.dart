@@ -127,7 +127,7 @@ class _SummaryViewState extends State<SummaryView>
                       color: Colors.white,
                       child: Column(
                         children: [
-                           Container(
+                          Container(
                             width: double.maxFinite,
                             height: 12,
                             color: TColor.lightWhite,
@@ -187,8 +187,8 @@ class _SummaryViewState extends State<SummaryView>
                                   ),
                                   const Expanded(
                                     child: TitleSubtitleCell(
-                                      title: "8:30",
-                                      subtitle: "Online hrs",
+                                      title: "\$50.48",
+                                      subtitle: "Online Trip",
                                     ),
                                   ),
                                   Container(
@@ -251,12 +251,11 @@ class _SummaryViewState extends State<SummaryView>
                       color: Colors.white,
                       child: Column(
                         children: [
-                           Container(
-                                width: double.maxFinite,
-                                height: 12,
-                                color:  TColor.lightWhite,
-
-                           ),
+                          Container(
+                            width: double.maxFinite,
+                            height: 12,
+                            color: TColor.lightWhite,
+                          ),
                           const SizedBox(
                             height: 30,
                           ),
@@ -411,8 +410,8 @@ class _SummaryViewState extends State<SummaryView>
                                   ),
                                   const Expanded(
                                     child: TitleSubtitleCell(
-                                      title: "38:30",
-                                      subtitle: "Online hrs",
+                                      title: "\$200.48",
+                                      subtitle: "Online Trip",
                                     ),
                                   ),
                                   Container(
@@ -431,7 +430,7 @@ class _SummaryViewState extends State<SummaryView>
                               Container(
                                 width: double.maxFinite,
                                 height: 60,
-                                color:  TColor.lightWhite,
+                                color: TColor.lightWhite,
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 20),
                                 alignment: Alignment.centerLeft,
