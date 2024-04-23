@@ -1,6 +1,10 @@
+
 import 'package:flutter/material.dart';
 import 'package:taxi_driver/common/color_extension.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:taxi_driver/common/common_extension.dart';
+import 'package:taxi_driver/common/globs.dart';
+import 'package:taxi_driver/common/service_call.dart';
 import 'package:taxi_driver/common_widget/title_subtitle_cell.dart';
 import 'package:taxi_driver/common_widget/today_summary_row.dart';
 import 'package:taxi_driver/common_widget/weekly_summary_row.dart';
@@ -17,52 +21,33 @@ class _SummaryViewState extends State<SummaryView>
   TabController? controller;
   int touchedIndex = -1;
 
-  List todayTripsArr = [
-    {
-      "time": "3:32",
-      "am_pm": "AM",
-      "name": "Pembroke Dock",
-      "detail": "Paid by card",
-      "price": "\$25"
-    },
-    {
-      "time": "4:32",
-      "am_pm": "AM",
-      "name": "Location name only",
-      "detail": "Paid by card",
-      "price": "\$35"
-    },
-    {
-      "time": "5:32",
-      "am_pm": "AM",
-      "name": "Pembroke Dock",
-      "detail": "Paid by card",
-      "price": "\$30"
-    },
-    {
-      "time": "6:32",
-      "am_pm": "AM",
-      "name": "Pembroke Dock",
-      "detail": "Paid by card",
-      "price": "\$40"
-    }
-  ];
+  Map todayObj = {};
+  Map weekObj = {};
 
-  List weeklyTripsArr = [
-    {"time": "Mon, 28 Sep", "trips": "25", "price": "\$40"},
-    {"time": "Mon, 27 Sep", "trips": "15", "price": "\$30"},
-    {"time": "Mon, 26 Sep", "trips": "40", "price": "\$120"},
-    {"time": "Mon, 24 Sep", "trips": "30", "price": "\$100"}
-  ];
+  List todayTripsArr = [];
+
+  List weeklyTripsArr = [];
 
   @override
   void initState() {
     super.initState();
     controller = TabController(length: 2, vsync: this);
+    apiList();
   }
 
   @override
   Widget build(BuildContext context) {
+    var todayTotal = double.tryParse(todayObj["total_amt"].toString()) ?? 0.0;
+    var todayCashTotal =
+        double.tryParse(todayObj["cash_amt"].toString()) ?? 0.0;
+    var todayOnlineTotal =
+        double.tryParse(todayObj["online_amt"].toString()) ?? 0.0;
+
+    var weekTotal = double.tryParse(weekObj["total_amt"].toString()) ?? 0.0;
+    var weekCashTotal = double.tryParse(weekObj["cash_amt"].toString()) ?? 0.0;
+    var weekOnlineTotal =
+        double.tryParse(weekObj["online_amt"].toString()) ?? 0.0;
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0.5,
@@ -136,7 +121,8 @@ class _SummaryViewState extends State<SummaryView>
                             height: 40,
                           ),
                           Text(
-                            "Mon, 28 Sep'23",
+                            DateTime.now()
+                                .stringFormat(format: "EEE, dd MMM yy"),
                             style: TextStyle(
                                 color: TColor.secondaryText, fontSize: 16),
                           ),
@@ -154,7 +140,7 @@ class _SummaryViewState extends State<SummaryView>
                                     fontWeight: FontWeight.w800),
                               ),
                               Text(
-                                "157.75",
+                                todayTotal.toStringAsFixed(2),
                                 style: TextStyle(
                                     color: TColor.primaryText,
                                     fontSize: 25,
@@ -174,9 +160,11 @@ class _SummaryViewState extends State<SummaryView>
                               ),
                               Row(
                                 children: [
-                                  const Expanded(
+                                  Expanded(
                                     child: TitleSubtitleCell(
-                                      title: "15",
+                                      title:
+                                          (todayObj["tips_count"] as int? ?? 0)
+                                              .toString(),
                                       subtitle: "Trips",
                                     ),
                                   ),
@@ -185,9 +173,10 @@ class _SummaryViewState extends State<SummaryView>
                                     width: 0.5,
                                     color: TColor.lightGray,
                                   ),
-                                  const Expanded(
+                                  Expanded(
                                     child: TitleSubtitleCell(
-                                      title: "\$50.48",
+                                      title:
+                                          "\$${todayOnlineTotal.toStringAsFixed(2)}",
                                       subtitle: "Online Trip",
                                     ),
                                   ),
@@ -196,9 +185,9 @@ class _SummaryViewState extends State<SummaryView>
                                     width: 0.5,
                                     color: TColor.lightGray,
                                   ),
-                                  const Expanded(
+                                   Expanded(
                                     child: TitleSubtitleCell(
-                                      title: "\$22.48",
+                                      title: "\$${todayCashTotal.toStringAsFixed(2)}",
                                       subtitle: "Cash Trip",
                                     ),
                                   )
@@ -260,7 +249,8 @@ class _SummaryViewState extends State<SummaryView>
                             height: 30,
                           ),
                           Text(
-                            "Mon, 28 Sep'23",
+                             DateTime.now()
+                                .stringFormat(format: "EEE, dd MMM yy"),
                             style: TextStyle(
                                 color: TColor.secondaryText, fontSize: 16),
                           ),
@@ -278,7 +268,7 @@ class _SummaryViewState extends State<SummaryView>
                                     fontWeight: FontWeight.w800),
                               ),
                               Text(
-                                "157.75",
+                                weekTotal.toStringAsFixed(2),
                                 style: TextStyle(
                                     color: TColor.primaryText,
                                     fontSize: 25,
@@ -397,9 +387,10 @@ class _SummaryViewState extends State<SummaryView>
                               ),
                               Row(
                                 children: [
-                                  const Expanded(
+                                   Expanded(
                                     child: TitleSubtitleCell(
-                                      title: "45",
+                                      title: (weekObj["tips_count"] as int? ?? 0)
+                                              .toString(),
                                       subtitle: "Trips",
                                     ),
                                   ),
@@ -408,9 +399,9 @@ class _SummaryViewState extends State<SummaryView>
                                     width: 0.5,
                                     color: TColor.lightGray,
                                   ),
-                                  const Expanded(
+                                   Expanded(
                                     child: TitleSubtitleCell(
-                                      title: "\$200.48",
+                                      title: "\$${weekOnlineTotal.toStringAsFixed(2)}",
                                       subtitle: "Online Trip",
                                     ),
                                   ),
@@ -419,9 +410,9 @@ class _SummaryViewState extends State<SummaryView>
                                     width: 0.5,
                                     color: TColor.lightGray,
                                   ),
-                                  const Expanded(
+                                   Expanded(
                                     child: TitleSubtitleCell(
-                                      title: "\$99.48",
+                                      title: "\$${weekCashTotal.toStringAsFixed(2)}",
                                       subtitle: "Cash Trip",
                                     ),
                                   )
@@ -579,5 +570,38 @@ class _SummaryViewState extends State<SummaryView>
               : const BorderSide(color: Colors.green, width: 0),
           backDrawRodData: BackgroundBarChartRodData(show: false))
     ]);
+  }
+
+  //TODO: ApiCalling
+  void apiList() {
+    Globs.showHUD();
+    ServiceCall.post(
+      {},
+      SVKey.svDriverSummary,
+      isTokenApi: true,
+      withSuccess: (responseObj) async {
+        Globs.hideHUD();
+
+        if (responseObj[KKey.status] == "1") {
+          var payloadObj = responseObj[KKey.payload] as Map? ?? {};
+          todayObj = payloadObj["today"] as Map? ?? {};
+          weekObj = payloadObj["week"] as Map? ?? {};
+
+          todayTripsArr = todayObj["list"] as List? ?? [];
+          weeklyTripsArr = weekObj["list"] as List? ?? [];
+
+          if (mounted) {
+            setState(() {});
+          }
+        } else {
+          mdShowAlert(
+              "Error", responseObj[KKey.message] as String? ?? MSG.fail, () {});
+        }
+      },
+      failure: (err) async {
+        Globs.hideHUD();
+        debugPrint(err.toString());
+      },
+    );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:taxi_driver/common/color_extension.dart';
+import 'package:taxi_driver/common/common_extension.dart';
 
 class TodaySummaryRow extends StatelessWidget {
   final Map sObj;
@@ -7,6 +8,7 @@ class TodaySummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var price = double.tryParse( sObj["amt"].toString() ) ?? 0.0;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
@@ -14,7 +16,10 @@ class TodaySummaryRow extends StatelessWidget {
           Column(
             children: [
               Text(
-                sObj["time"],
+                sObj["start_time"]
+                    .toString()
+                    .dataFormat()
+                    .stringFormat(format: "hh:mm"),
                 style: TextStyle(color: TColor.primaryText, fontSize: 15),
               ),
               Container(
@@ -24,7 +29,10 @@ class TodaySummaryRow extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  sObj["am_pm"],
+                  sObj["start_time"]
+                      .toString()
+                      .dataFormat()
+                      .stringFormat(format: "aa"),
                   style: TextStyle(
                     color: TColor.secondaryText,
                     fontSize: 11,
@@ -42,11 +50,12 @@ class TodaySummaryRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  sObj["name"],
+                  sObj["pickup_address"] as String? ?? "",
+                  maxLines: 1,
                   style: TextStyle(color: TColor.primaryText, fontSize: 16),
                 ),
                 Text(
-                  sObj["detail"],
+                  "Paid by ${ sObj["payment_type"] == 1 ? "cash" : "online" }",
                   style: TextStyle(color: TColor.secondaryText, fontSize: 15),
                 ),
               ],
@@ -56,7 +65,7 @@ class TodaySummaryRow extends StatelessWidget {
             width: 8,
           ),
           Text(
-            sObj["price"],
+           "\$${price.toStringAsFixed(2)}" ,
             style: TextStyle(color: TColor.primaryText, fontSize: 16),
           ),
         ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:taxi_driver/common/color_extension.dart';
+import 'package:taxi_driver/common/common_extension.dart';
 
 class WeeklySummaryRow extends StatelessWidget {
   final Map sObj;
@@ -7,6 +8,7 @@ class WeeklySummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var price = double.tryParse(sObj["amt"].toString()) ?? 0.0;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
@@ -17,11 +19,17 @@ class WeeklySummaryRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  sObj["time"],
+                  sObj["start_time"]
+                      .toString()
+                      .dataFormat()
+                      .stringFormat(format: "dd, MMM yyyy"),
                   style: TextStyle(color: TColor.primaryText, fontSize: 16),
                 ),
                 Text(
-                  "${sObj["trips"]} Trips",
+                  sObj["start_time"]
+                      .toString()
+                      .dataFormat()
+                      .stringFormat(format: "hh:mm aa"),
                   style: TextStyle(color: TColor.secondaryText, fontSize: 15),
                 ),
               ],
@@ -31,7 +39,7 @@ class WeeklySummaryRow extends StatelessWidget {
             width: 8,
           ),
           Text(
-            sObj["price"],
+            "\$${price.toStringAsFixed(2)}",
             style: TextStyle(color: TColor.primaryText, fontSize: 16),
           ),
         ],

@@ -126,6 +126,10 @@ class SVKey {
 
     static const svRideRating = "${baseUrl}ride_rating";
     static const svBookingDetail = "${baseUrl}booking_detail";
+
+    static const svDriverSummary = "${baseUrl}driver_summary";
+    
+
 }
 
 class KKey {
