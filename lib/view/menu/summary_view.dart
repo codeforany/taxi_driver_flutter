@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:taxi_driver/common/color_extension.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -27,6 +26,7 @@ class _SummaryViewState extends State<SummaryView>
   List todayTripsArr = [];
 
   List weeklyTripsArr = [];
+  List weeklyChartArr = [];
 
   @override
   void initState() {
@@ -185,9 +185,10 @@ class _SummaryViewState extends State<SummaryView>
                                     width: 0.5,
                                     color: TColor.lightGray,
                                   ),
-                                   Expanded(
+                                  Expanded(
                                     child: TitleSubtitleCell(
-                                      title: "\$${todayCashTotal.toStringAsFixed(2)}",
+                                      title:
+                                          "\$${todayCashTotal.toStringAsFixed(2)}",
                                       subtitle: "Cash Trip",
                                     ),
                                   )
@@ -249,7 +250,7 @@ class _SummaryViewState extends State<SummaryView>
                             height: 30,
                           ),
                           Text(
-                             DateTime.now()
+                            DateTime.now()
                                 .stringFormat(format: "EEE, dd MMM yy"),
                             style: TextStyle(
                                 color: TColor.secondaryText, fontSize: 16),
@@ -291,43 +292,16 @@ class _SummaryViewState extends State<SummaryView>
                                     tooltipMargin: 10,
                                     getTooltipItem:
                                         (group, groupIndex, rod, rodIndex) {
-                                      String weekDay;
+                                      var obj =
+                                          weeklyChartArr[group.x] as Map? ?? {};
 
-                                      switch (group.x) {
-                                        case 0:
-                                          weekDay = "Sunday";
-
-                                          break;
-                                        case 1:
-                                          weekDay = "Monday";
-
-                                          break;
-                                        case 2:
-                                          weekDay = "Tuesday";
-
-                                          break;
-                                        case 3:
-                                          weekDay = "Wednesday";
-
-                                          break;
-                                        case 4:
-                                          weekDay = "Thursday";
-
-                                          break;
-                                        case 5:
-                                          weekDay = "Friday";
-
-                                          break;
-                                        case 6:
-                                          weekDay = "Saturday";
-
-                                          break;
-                                        default:
-                                          throw Error();
-                                      }
+                                      var weekDay = obj["date"]
+                                          .toString()
+                                          .stringFormatToOtherFormat(
+                                              newFormat: "EEEE");
 
                                       return BarTooltipItem(
-                                        '$weekDay\n',
+                                        '$weekDay\n\$${ ( double.tryParse( obj["total_amt"].toString()) ?? 0.0 ).toStringAsFixed(2) }',
                                         const TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.w500,
@@ -387,9 +361,10 @@ class _SummaryViewState extends State<SummaryView>
                               ),
                               Row(
                                 children: [
-                                   Expanded(
+                                  Expanded(
                                     child: TitleSubtitleCell(
-                                      title: (weekObj["tips_count"] as int? ?? 0)
+                                      title:
+                                          (weekObj["tips_count"] as int? ?? 0)
                                               .toString(),
                                       subtitle: "Trips",
                                     ),
@@ -399,9 +374,10 @@ class _SummaryViewState extends State<SummaryView>
                                     width: 0.5,
                                     color: TColor.lightGray,
                                   ),
-                                   Expanded(
+                                  Expanded(
                                     child: TitleSubtitleCell(
-                                      title: "\$${weekOnlineTotal.toStringAsFixed(2)}",
+                                      title:
+                                          "\$${weekOnlineTotal.toStringAsFixed(2)}",
                                       subtitle: "Online Trip",
                                     ),
                                   ),
@@ -410,9 +386,10 @@ class _SummaryViewState extends State<SummaryView>
                                     width: 0.5,
                                     color: TColor.lightGray,
                                   ),
-                                   Expanded(
+                                  Expanded(
                                     child: TitleSubtitleCell(
-                                      title: "\$${weekCashTotal.toStringAsFixed(2)}",
+                                      title:
+                                          "\$${weekCashTotal.toStringAsFixed(2)}",
                                       subtitle: "Cash Trip",
                                     ),
                                   )
@@ -440,7 +417,7 @@ class _SummaryViewState extends State<SummaryView>
                                       horizontal: 20, vertical: 10),
                                   itemBuilder: (context, index) {
                                     var sObj =
-                                        weeklyTripsArr[index] as Map? ?? {};
+                                        weeklyChartArr[index] as Map? ?? {};
 
                                     return WeeklySummaryRow(
                                       sObj: sObj,
@@ -450,7 +427,7 @@ class _SummaryViewState extends State<SummaryView>
                                       const Divider(
                                         indent: 40,
                                       ),
-                                  itemCount: weeklyTripsArr.length)
+                                  itemCount: weeklyChartArr.length)
                             ],
                           )
                         ],
@@ -469,88 +446,23 @@ class _SummaryViewState extends State<SummaryView>
   Widget getTitles(double value, TitleMeta meta) {
     var style = TextStyle(color: TColor.secondaryText, fontSize: 12);
 
-    Widget text;
-    switch (value.toInt()) {
-      case 0:
-        text = Text(
-          'S',
-          style: style,
-        );
-        break;
-      case 1:
-        text = Text(
-          'M',
-          style: style,
-        );
-        break;
-      case 2:
-        text = Text(
-          'T',
-          style: style,
-        );
-        break;
-      case 3:
-        text = Text(
-          'W',
-          style: style,
-        );
-        break;
-      case 4:
-        text = Text(
-          'T',
-          style: style,
-        );
-        break;
-      case 5:
-        text = Text(
-          'F',
-          style: style,
-        );
-        break;
-      case 6:
-        text = Text(
-          'S',
-          style: style,
-        );
-        break;
-      default:
-        text = Text(
-          '',
-          style: style,
-        );
-        break;
-    }
+    var obj = weeklyChartArr[value.toInt()] as Map? ?? {};
 
-    return SideTitleWidget(child: text, space: 16, axisSide: meta.axisSide);
+    return SideTitleWidget(
+        space: 16,
+        axisSide: meta.axisSide,
+        child: Text(
+          obj["date"].toString().stringFormatToOtherFormat(newFormat: "EEE"),
+          style: style,
+        ));
   }
 
-  List<BarChartGroupData> showingGroups() => List.generate(7, (i) {
-        switch (i) {
-          case 0:
-            return makeGroupData(0, 5, TColor.primary,
-                isTouched: i == touchedIndex);
-          case 1:
-            return makeGroupData(1, 10.5, TColor.primary,
-                isTouched: i == touchedIndex);
-          case 2:
-            return makeGroupData(2, 5, TColor.primary,
-                isTouched: i == touchedIndex);
-          case 3:
-            return makeGroupData(3, 7.5, TColor.primary,
-                isTouched: i == touchedIndex);
-          case 4:
-            return makeGroupData(4, 15, TColor.primary,
-                isTouched: i == touchedIndex);
-          case 5:
-            return makeGroupData(5, 5.5, TColor.primary,
-                isTouched: i == touchedIndex);
-          case 6:
-            return makeGroupData(6, 8.5, TColor.primary,
-                isTouched: i == touchedIndex);
-          default:
-            return throw Error();
-        }
-      });
+  List<BarChartGroupData> showingGroups() => weeklyChartArr.map((e) {
+        var i = weeklyChartArr.indexOf(e);
+        return makeGroupData(i,
+            double.tryParse(e["total_amt"].toString()) ?? 0.0, TColor.primary,
+            isTouched: i == touchedIndex);
+      }).toList();
 
   BarChartGroupData makeGroupData(int x, double y, Color barColor,
       {bool isTouched = false,
@@ -589,6 +501,7 @@ class _SummaryViewState extends State<SummaryView>
 
           todayTripsArr = todayObj["list"] as List? ?? [];
           weeklyTripsArr = weekObj["list"] as List? ?? [];
+          weeklyChartArr = (weekObj["chart"] as List? ?? []).reversed.toList();
 
           if (mounted) {
             setState(() {});
