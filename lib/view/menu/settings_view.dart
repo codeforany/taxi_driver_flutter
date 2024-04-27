@@ -3,6 +3,7 @@ import 'package:taxi_driver/common/color_extension.dart';
 import 'package:taxi_driver/common_widget/setting_row.dart';
 import 'package:taxi_driver/view/home/support/support_list_view.dart';
 import 'package:taxi_driver/view/login/bank_detail_view.dart';
+import 'package:taxi_driver/view/login/document_upload_view.dart';
 import 'package:taxi_driver/view/menu/my_profile_view.dart';
 import 'package:taxi_driver/view/menu/my_vehicle_view.dart';
 
@@ -64,7 +65,11 @@ class _SettingsViewState extends State<SettingsView> {
             SettingRow(
                 title: "Personal Documents",
                 icon: "assets/img/sm_document.png",
-                onPressed: () {}),
+                onPressed: () {
+
+                    context.push( const DocumentUploadView(title: "Personal Document") );
+
+                }),
             SettingRow(
                 title: "Bank details",
                 icon: "assets/img/sm_bank.png",

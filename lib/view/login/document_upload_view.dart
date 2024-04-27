@@ -1,8 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:taxi_driver/common/color_extension.dart';
+import 'package:taxi_driver/common/common_extension.dart';
+import 'package:taxi_driver/common/globs.dart';
+import 'package:taxi_driver/common/service_call.dart';
 import 'package:taxi_driver/common_widget/document_row.dart';
-import 'package:taxi_driver/common_widget/round_button.dart';
-import 'package:taxi_driver/view/login/add_vehicle_view.dart';
+import 'package:taxi_driver/common_widget/image_picker_view.dart';
+import 'package:taxi_driver/common_widget/popup_layout.dart';
 
 class DocumentUploadView extends StatefulWidget {
   final String title;
@@ -13,32 +18,14 @@ class DocumentUploadView extends StatefulWidget {
 }
 
 class _DocumentUploadViewState extends State<DocumentUploadView> {
-  List documentList = [
-    {
-      "name": "Birth Certificate",
-      "detail": "Vehicle Registration",
-      "info": "",
-      "status": DocumentStatus.uploaded
-    },
-    {
-      "name": "Driving Licence",
-      "detail": "A driving license is an official do...",
-      "info": "",
-      "status": DocumentStatus.uploading
-    },
-    {
-      "name": "Passport",
-      "detail": "A passport is a travel document...",
-      "info": "",
-      "status": DocumentStatus.upload
-    },
-    {
-      "name": "Election Card",
-      "detail": "Incorrect document type",
-      "info": "",
-      "status": DocumentStatus.upload
-    }
-  ];
+  List documentList = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    apiList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,136 +67,142 @@ class _DocumentUploadViewState extends State<DocumentUploadView> {
                   itemBuilder: (context, index) {
                     var dObj = documentList[index] as Map? ?? {};
                     return DocumentRow(
-                        dObj: dObj,
-                        onPressed: () {},
-                        onInfo: () {
-                          showModalBottomSheet(
-                              isScrollControlled: true,
-                              backgroundColor: Colors.transparent,
-                              context: context,
-                              builder: (context) {
-                                return Container(
-                                  width: context.width,
-                                  height: context.height - 100,
-                                  margin: const EdgeInsets.symmetric(
-                                      vertical: 46, horizontal: 20),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 20, horizontal: 20),
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(15),
-                                      boxShadow: const [
-                                        BoxShadow(
-                                            color: Colors.black12,
-                                            blurRadius: 3),
-                                      ]),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "Birth Certificate",
-                                        style: TextStyle(
-                                            color: TColor.primaryText,
-                                            fontSize: 23,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-
-                                      const SizedBox(height: 15,),
-                                      Expanded(
-                                        child: SingleChildScrollView(
-                                          child: Text(
-                                            "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.\n\n It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.\n\n It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.leap into electronic typesetting, remaining essentially unchanged.\n\n It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.\n\n It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-                                            style: TextStyle(
-                                              color: TColor.secondaryText,
-                                              fontSize: 16,
-                                            ),
+                      dObj: dObj,
+                      onPressed: () {},
+                      onInfo: () {
+                        showModalBottomSheet(
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            context: context,
+                            builder: (context) {
+                              return Container(
+                                width: context.width,
+                                height: context.height - 100,
+                                margin: const EdgeInsets.symmetric(
+                                    vertical: 46, horizontal: 20),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 20, horizontal: 20),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(15),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                          color: Colors.black12, blurRadius: 3),
+                                    ]),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      dObj["name"] as String? ?? "",
+                                      style: TextStyle(
+                                          color: TColor.primaryText,
+                                          fontSize: 23,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                    const SizedBox(
+                                      height: 15,
+                                    ),
+                                    Expanded(
+                                      child: SingleChildScrollView(
+                                        child: Text(
+                                          "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.\n\n It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.\n\n It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.leap into electronic typesetting, remaining essentially unchanged.\n\n It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.\n\n It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+                                          style: TextStyle(
+                                            color: TColor.secondaryText,
+                                            fontSize: 16,
                                           ),
                                         ),
                                       ),
-
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
-                                        children: [
+                                    ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
                                         TextButton(
-                                            onPressed: (){
-                                              context.pop();
-                                            },
-                                            child: Text(
-                                              "OKAY",
-                                              style: TextStyle(
-                                                  color: TColor.primary,
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w700),
-                                            ),
-                                          )
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                );
-                              });
-                        },
-                        onUpload: () {},
-                        onAction: () {},
-                        status: dObj["status"] as DocumentStatus? ??
-                            DocumentStatus.upload);
+                                          onPressed: () {
+                                            context.pop();
+                                          },
+                                          child: Text(
+                                            "OKAY",
+                                            style: TextStyle(
+                                                color: TColor.primary,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w700),
+                                          ),
+                                        )
+                                      ],
+                                    )
+                                  ],
+                                ),
+                              );
+                            });
+                      },
+                      onUpload: () async {
+                        await Navigator.push(context, PopupLayout(
+                            child: ImagePickerView(didSelect: (imagePath) {
+                          var image = File(imagePath);
+
+                          apiUploadDoc({
+                            "doc_id": dObj["doc_id"].toString(),
+                            "zone_doc_id": dObj["zone_doc_id"].toString(),
+                            "user_car_id": "",
+                            "expriry_date": DateTime.now()
+                                .add(const Duration(days: 365))
+                                .stringFormat()
+                          }, {
+                            'image': image
+                          });
+                        })));
+                      },
+                      onAction: () {},
+                    );
                   },
                   itemCount: documentList.length),
               const SizedBox(
                 height: 8,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "By continuing, I confirm that i have read & agree to the",
-                    style: TextStyle(
-                      color: TColor.secondaryText,
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Terms & conditions",
-                    style: TextStyle(
-                      color: TColor.primaryText,
-                      fontSize: 11,
-                    ),
-                  ),
-                  Text(
-                    " and ",
-                    style: TextStyle(
-                      color: TColor.secondaryText,
-                      fontSize: 11,
-                    ),
-                  ),
-                  Text(
-                    "Privacy policy",
-                    style: TextStyle(
-                      color: TColor.primaryText,
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              RoundButton(
-                onPressed: () {
-                  context.push( const AddVehicleView() );
-                },
-                title: "NEXT",
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  //TODO: ApiCalling
+
+  void apiList() {
+    Globs.showHUD();
+    ServiceCall.post({}, SVKey.svPersonalDocumentList, isTokenApi: true,
+        withSuccess: (responseObj) async {
+      Globs.hideHUD();
+      if (responseObj[KKey.status] == "1") {
+        documentList = responseObj[KKey.payload] as List? ?? [];
+
+        if (mounted) {
+          setState(() {});
+        }
+      } else {
+        mdShowAlert("Error", responseObj[KKey.message].toString(), () {});
+      }
+    }, failure: (err) async {
+      Globs.hideHUD();
+      mdShowAlert("Error", err.toString(), () {});
+    });
+  }
+
+  void apiUploadDoc(Map<String, String> parameter, Map<String, File> imgObj) {
+    Globs.showHUD();
+
+    ServiceCall.multipart(parameter, SVKey.svDriverUploadDocument,
+        isTokenApi: true, imgObj: imgObj, withSuccess: (responseObj) async {
+      Globs.hideHUD();
+      if (responseObj[KKey.status] == "1") {
+        mdShowAlert("Success", responseObj[KKey.message].toString(), () {});
+        apiList();
+      } else {
+        mdShowAlert("Error", responseObj[KKey.message].toString(), () {});
+      }
+    }, failure: (err) async {
+      Globs.hideHUD();
+      mdShowAlert("Error", err.toString(), () {});
+    });
   }
 }

@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:taxi_driver/common/color_extension.dart';
 
-enum DocumentStatus { upload, uploading, uploaded }
-
 class DocumentRow extends StatelessWidget {
   final Map dObj;
   final VoidCallback onPressed;
   final VoidCallback onInfo;
   final VoidCallback onUpload;
   final VoidCallback onAction;
-  final DocumentStatus status;
 
   const DocumentRow(
       {super.key,
@@ -17,11 +14,12 @@ class DocumentRow extends StatelessWidget {
       required this.onPressed,
       required this.onInfo,
       required this.onUpload,
-      required this.onAction,
-      required this.status});
+      required this.onAction});
 
   @override
   Widget build(BuildContext context) {
+    var status = dObj["status"] as int? ?? -1;
+
     return InkWell(
       onTap: onPressed,
       child: Column(
@@ -58,20 +56,20 @@ class DocumentRow extends StatelessWidget {
                           )
                         ],
                       ),
-                      const SizedBox(
-                        height: 4,
-                      ),
-                      Text(
-                        dObj["detail"] as String? ?? "",
-                        style: TextStyle(
-                          color: TColor.secondaryText,
-                          fontSize: 15,
-                        ),
-                      ),
+                      // const SizedBox(
+                      //   height: 4,
+                      // ),
+                      // Text(
+                      //   dObj["detail"] as String? ?? "",
+                      //   style: TextStyle(
+                      //     color: TColor.secondaryText,
+                      //     fontSize: 15,
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
-                if (status == DocumentStatus.uploaded)
+                if (status == 2)
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -90,17 +88,7 @@ class DocumentRow extends StatelessWidget {
                       )
                     ],
                   )
-                else if (status == DocumentStatus.uploading)
-                  SizedBox(
-                    width: 25,
-                    height: 25,
-                    child: CircularProgressIndicator(
-                      value: 0.3,
-                      color: TColor.primary,
-                      backgroundColor: TColor.lightGray,
-                    ),
-                  )
-                else
+                else if (status == -1)
                   TextButton(
                     onPressed: onUpload,
                     child: Text(
@@ -111,10 +99,30 @@ class DocumentRow extends StatelessWidget {
                           fontWeight: FontWeight.w700),
                     ),
                   )
+                else if (status == 0)
+                  const Text(
+                    "Pending",
+                    style: TextStyle(
+                        color: Colors.blue,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500),
+                  )
+                else
+                  Text(
+                    status == 3
+                        ? "Unapproved"
+                        : status == 4
+                            ? "Expiry in 15 days"
+                            : "Expired",
+                    style: const TextStyle(
+                        color: Colors.red,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500),
+                  ),
               ],
             ),
           ),
-          Divider(),
+          const Divider(),
         ],
       ),
     );
