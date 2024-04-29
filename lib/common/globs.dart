@@ -131,7 +131,7 @@ class SVKey {
 
     static const svPersonalDocumentList = "${baseUrl}personal_document_list";
     static const svDriverUploadDocument = "${baseUrl}driver_update_document";
-    
+    static const svCarDocumentList = "${baseUrl}car_document_list";
 
 }
 

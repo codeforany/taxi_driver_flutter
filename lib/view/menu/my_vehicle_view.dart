@@ -7,6 +7,7 @@ import 'package:taxi_driver/common/service_call.dart';
 import 'package:taxi_driver/common_widget/my_car_row.dart';
 import 'package:taxi_driver/common_widget/round_button.dart';
 import 'package:taxi_driver/view/login/add_vehicle_view.dart';
+import 'package:taxi_driver/view/login/vehicle_document_view.dart';
 import 'package:taxi_driver/view/menu/my_car_details_view.dart';
 
 class MyVehicleView extends StatefulWidget {
@@ -63,31 +64,29 @@ class _MyVehicleViewState extends State<MyVehicleView> {
 
                   return Slidable(
                     // Specify a key if the Slidable is dismissible.
-                    key:  ValueKey( "${ cObj["user_car_id"] }" ),
-
-                    
+                    key: ValueKey("${cObj["user_car_id"]}"),
 
                     // The end action pane is the one at the right or the bottom side.
-                    endActionPane:  ActionPane(
+                    endActionPane: ActionPane(
                       motion: const ScrollMotion(),
                       children: [
-                        
                         SlidableAction(
-                          onPressed: (context){
-
-                              setCarRunningApi({"user_car_id":  "${cObj["user_car_id"]}"  });
+                          onPressed: (context) {
+                            setCarRunningApi(
+                                {"user_car_id": "${cObj["user_car_id"]}"});
                           },
-                          backgroundColor: Colors.blue ,
+                          backgroundColor: Colors.blue,
                           foregroundColor: Colors.white,
                           icon: Icons.directions_car,
                           label: 'Set',
                         ),
-
                         SlidableAction(
                           // An action can be bigger than the others.
 
                           onPressed: (context) {
-                            carsDeleteApi({"user_car_id": "${ cObj["user_car_id"] }"   }, index);
+                            carsDeleteApi(
+                                {"user_car_id": "${cObj["user_car_id"]}"},
+                                index);
                           },
                           backgroundColor: Colors.red,
                           foregroundColor: Colors.white,
@@ -102,7 +101,9 @@ class _MyVehicleViewState extends State<MyVehicleView> {
                     child: MyCarRow(
                       cObj: cObj,
                       onPressed: () {
-                        context.push(const MyCarDetailsView());
+                        context.push(VehicleDocumentUploadView(
+                          obj: cObj,
+                        ));
                       },
                     ),
                   );
@@ -154,7 +155,7 @@ class _MyVehicleViewState extends State<MyVehicleView> {
     });
   }
 
-  void carsDeleteApi(Map<String, dynamic> parameter, int deleteIndex ) {
+  void carsDeleteApi(Map<String, dynamic> parameter, int deleteIndex) {
     Globs.showHUD();
 
     ServiceCall.post(parameter, SVKey.svDeleteCar, isTokenApi: true,
@@ -183,9 +184,8 @@ class _MyVehicleViewState extends State<MyVehicleView> {
       Globs.hideHUD();
 
       if (responseObj[KKey.status] == "1") {
-        listArr =  responseObj[KKey.payload] as List? ?? [];
+        listArr = responseObj[KKey.payload] as List? ?? [];
       } else {
-        
         mdShowAlert("Error", responseObj[KKey.message].toString(), () {});
       }
       if (mounted) {

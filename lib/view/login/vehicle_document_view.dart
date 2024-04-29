@@ -1,11 +1,19 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:taxi_driver/common/color_extension.dart';
+import 'package:taxi_driver/common/common_extension.dart';
+import 'package:taxi_driver/common/globs.dart';
+import 'package:taxi_driver/common/service_call.dart';
 import 'package:taxi_driver/common_widget/document_row.dart';
+import 'package:taxi_driver/common_widget/image_picker_view.dart';
+import 'package:taxi_driver/common_widget/popup_layout.dart';
 import 'package:taxi_driver/common_widget/round_button.dart';
 import 'package:taxi_driver/view/login/subscription_plan_view.dart';
 
 class VehicleDocumentUploadView extends StatefulWidget {
-  const VehicleDocumentUploadView({super.key});
+  final Map obj;
+  const VehicleDocumentUploadView({super.key, required this.obj});
 
   @override
   State<VehicleDocumentUploadView> createState() =>
@@ -13,28 +21,14 @@ class VehicleDocumentUploadView extends StatefulWidget {
 }
 
 class _VehicleDocumentUploadViewState extends State<VehicleDocumentUploadView> {
-  List documentList = [
-    {
-      "name": "RC Book",
-      "detail": "Vehicle Registration",
-      "info": "",
-    },
-    {
-      "name": "Insurance policy",
-      "detail": "A driving license is an official do...",
-      "info": "",
-    },
-    {
-      "name": "Owner certificate",
-      "detail": "A passport is a travel document...",
-      "info": "",
-    },
-    {
-      "name": "PUC",
-      "detail": "Incorrect document type",
-      "info": "",
-    }
-  ];
+  List documentList = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    apiList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +96,7 @@ class _VehicleDocumentUploadViewState extends State<VehicleDocumentUploadView> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      "RC Book",
+                                      dObj["name"] as String? ?? "",
                                       style: TextStyle(
                                           color: TColor.primaryText,
                                           fontSize: 23,
@@ -144,7 +138,23 @@ class _VehicleDocumentUploadViewState extends State<VehicleDocumentUploadView> {
                               );
                             });
                       },
-                      onUpload: () {},
+                      onUpload: () async {
+                        await Navigator.push(context, PopupLayout(
+                            child: ImagePickerView(didSelect: (imagePath) {
+                          var image = File(imagePath);
+
+                          apiUploadDoc({
+                            "doc_id": dObj["doc_id"].toString(),
+                            "zone_doc_id": dObj["zone_doc_id"].toString(),
+                            "user_car_id": widget.obj["user_car_id"].toString(),
+                            "expriry_date": DateTime.now()
+                                .add(const Duration(days: 365))
+                                .stringFormat()
+                          }, {
+                            'image': image
+                          });
+                        })));
+                      },
                       onAction: () {},
                     );
                   },
@@ -152,57 +162,55 @@ class _VehicleDocumentUploadViewState extends State<VehicleDocumentUploadView> {
               const SizedBox(
                 height: 8,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "By continuing, I confirm that i have read & agree to the",
-                    style: TextStyle(
-                      color: TColor.secondaryText,
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Terms & conditions",
-                    style: TextStyle(
-                      color: TColor.primaryText,
-                      fontSize: 11,
-                    ),
-                  ),
-                  Text(
-                    " and ",
-                    style: TextStyle(
-                      color: TColor.secondaryText,
-                      fontSize: 11,
-                    ),
-                  ),
-                  Text(
-                    "Privacy policy",
-                    style: TextStyle(
-                      color: TColor.primaryText,
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              RoundButton(
-                onPressed: () {
-                  context.push(const SubscriptionPlanView());
-                },
-                title: "NEXT",
-              ),
+             
             ],
           ),
         ),
       ),
     );
+  }
+
+  //TODO: ApiCalling
+  void apiList() {
+    Globs.showHUD();
+    ServiceCall.post(
+      {"user_car_id": widget.obj["user_car_id"].toString()},
+      SVKey.svCarDocumentList,
+      isTokenApi: true,
+      withSuccess: (responseObj) async {
+        Globs.hideHUD();
+        if (responseObj[KKey.status] == "1") {
+          documentList = responseObj[KKey.payload] as List? ?? [];
+          if (mounted) {
+            setState(() {});
+          }
+        } else {
+          mdShowAlert(
+              "Error", responseObj[KKey.message] as String? ?? MSG.fail, () {});
+        }
+      },
+      failure: (error) async {
+        Globs.hideHUD();
+        mdShowAlert("Error", error.toString(), () {});
+      },
+    );
+  }
+
+  void apiUploadDoc(Map<String, String> parameter, Map<String, File> imgObj) {
+    Globs.showHUD();
+
+    ServiceCall.multipart(parameter, SVKey.svDriverUploadDocument,
+        isTokenApi: true, imgObj: imgObj, withSuccess: (responseObj) async {
+      Globs.hideHUD();
+      if (responseObj[KKey.status] == "1") {
+        mdShowAlert("Success", responseObj[KKey.message].toString(), () {});
+        apiList();
+      } else {
+        mdShowAlert("Error", responseObj[KKey.message].toString(), () {});
+      }
+    }, failure: (err) async {
+      Globs.hideHUD();
+      mdShowAlert("Error", err.toString(), () {});
+    });
   }
 }
