@@ -133,6 +133,8 @@ class SVKey {
     static const svDriverUploadDocument = "${baseUrl}driver_update_document";
     static const svCarDocumentList = "${baseUrl}car_document_list";
 
+    static const svChangePassword = "${baseUrl}change_password";
+
 }
 
 class KKey {
