@@ -8,6 +8,8 @@ class LineTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final bool? obscureText;
   final Widget? right;
+  final int minLines;
+  final int maxLines;
 
   const LineTextField(
       {super.key,
@@ -16,7 +18,9 @@ class LineTextField extends StatelessWidget {
       this.controller,
       this.keyboardType,
       this.obscureText,
-      this.right});
+      this.right,
+      this.minLines = 1,
+      this.maxLines = 1});
 
   @override
   Widget build(BuildContext context) {
@@ -28,28 +32,27 @@ class LineTextField extends StatelessWidget {
           title,
           style: TextStyle(color: TColor.placeholder, fontSize: 14),
         ),
-
-     
-         TextField(
-            controller: controller,
-            keyboardType: keyboardType,
-            obscureText: obscureText ?? false,
-            style: TextStyle(
-              color: TColor.primaryText,
+        TextField(
+          controller: controller,
+          keyboardType: keyboardType,
+          obscureText: obscureText ?? false,
+          minLines: minLines,
+          maxLines: maxLines,
+          style: TextStyle(
+            color: TColor.primaryText,
+            fontSize: 16,
+          ),
+          decoration: InputDecoration(
+            enabledBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            hintText: hintText,
+            suffixIcon: right,
+            hintStyle: TextStyle(
+              color: TColor.secondaryText,
               fontSize: 16,
             ),
-            decoration: InputDecoration(
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              hintText: hintText,
-              suffixIcon: right,
-              hintStyle: TextStyle(
-                color: TColor.secondaryText,
-                fontSize: 16,
-              ),
-            ),
           ),
-        
+        ),
         Container(
           color: TColor.lightGray,
           height: 0.5,

@@ -5,6 +5,7 @@ import 'package:taxi_driver/view/home/support/support_list_view.dart';
 import 'package:taxi_driver/view/login/bank_detail_view.dart';
 import 'package:taxi_driver/view/login/document_upload_view.dart';
 import 'package:taxi_driver/view/menu/change_password_view.dart';
+import 'package:taxi_driver/view/menu/contact_us_view.dart';
 import 'package:taxi_driver/view/menu/my_profile_view.dart';
 import 'package:taxi_driver/view/menu/my_vehicle_view.dart';
 
@@ -54,22 +55,20 @@ class _SettingsViewState extends State<SettingsView> {
                 title: "My Profile",
                 icon: "assets/img/sm_profile.png",
                 onPressed: () {
-
                   context.push(const MyProfileView());
                 }),
             SettingRow(
                 title: "My Vehicle",
                 icon: "assets/img/sm_my_vehicle.png",
                 onPressed: () {
-                  context.push( const MyVehicleView() );
+                  context.push(const MyVehicleView());
                 }),
             SettingRow(
                 title: "Personal Documents",
                 icon: "assets/img/sm_document.png",
                 onPressed: () {
-
-                    context.push( const DocumentUploadView(title: "Personal Document") );
-
+                  context.push(
+                      const DocumentUploadView(title: "Personal Document"));
                 }),
             SettingRow(
                 title: "Bank details",
@@ -81,7 +80,7 @@ class _SettingsViewState extends State<SettingsView> {
                 title: "Change Password",
                 icon: "assets/img/sm_password.png",
                 onPressed: () {
-                  context.push( const ChangePasswordView() );
+                  context.push(const ChangePasswordView());
                 }),
             const SizedBox(
               height: 15,
@@ -112,12 +111,14 @@ class _SettingsViewState extends State<SettingsView> {
             SettingRow(
                 title: "Contact us",
                 icon: "assets/img/sm_profile.png",
-                onPressed: () {}),
+                onPressed: () {
+                  context.push(const ContactUsView());
+                }),
             SettingRow(
                 title: "Supports",
                 icon: "assets/img/sm_profile.png",
                 onPressed: () {
-                  context.push( const SupportListView() );
+                  context.push(const SupportListView());
                 }),
           ],
         ),

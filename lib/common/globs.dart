@@ -134,6 +134,7 @@ class SVKey {
     static const svCarDocumentList = "${baseUrl}car_document_list";
 
     static const svChangePassword = "${baseUrl}change_password";
+    static const svContactUs = "${baseUrl}contact_us";
 
 }
 
