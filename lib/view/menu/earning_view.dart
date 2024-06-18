@@ -192,7 +192,10 @@ class _EarningViewState extends State<EarningView>
                               BarChartData(
                                 barTouchData: BarTouchData(
                                   touchTooltipData: BarTouchTooltipData(
-                                    tooltipBgColor: Colors.grey,
+                                    // tooltipBgColor: Colors.grey,
+                                    getTooltipColor:
+                                        (BarChartGroupData group) =>
+                                            Colors.grey,
                                     tooltipHorizontalAlignment:
                                         FLHorizontalAlignment.right,
                                     tooltipMargin: 10,
@@ -274,13 +277,12 @@ class _EarningViewState extends State<EarningView>
                                     sideTitles: SideTitles(showTitles: false),
                                   ),
                                 ),
-                                borderData:  FlBorderData(
+                                borderData: FlBorderData(
                                   show: false,
                                 ),
                                 barGroups: showingGroups(),
                                 gridData: const FlGridData(show: false),
                               ),
-                              
                             ),
                           ),
                           PriceListView(dObj: weekObj),

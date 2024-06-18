@@ -286,7 +286,8 @@ class _SummaryViewState extends State<SummaryView>
                               BarChartData(
                                 barTouchData: BarTouchData(
                                   touchTooltipData: BarTouchTooltipData(
-                                    tooltipBgColor: Colors.grey,
+                                    getTooltipColor: (BarChartGroupData group) => Colors.grey,
+                                    // tooltipBgColor: Colors.grey,
                                     tooltipHorizontalAlignment:
                                         FLHorizontalAlignment.right,
                                     tooltipMargin: 10,

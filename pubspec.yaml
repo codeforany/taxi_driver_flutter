@@ -41,9 +41,9 @@ dependencies:
   flutter_osm_plugin: ^0.70.3
   flutter_timer_countdown: ^1.0.7
   flutter_rating_bar: ^4.0.1
-  fl_chart: ^0.65.0
-  firebase_core: ^2.24.2
-  firebase_auth: ^4.15.2
+  fl_chart: ^0.68.0
+  firebase_core: ^3.1.0
+  firebase_auth: ^5.1.0
   flutter_easyloading: ^3.0.5
   shared_preferences: ^2.2.2
   intl: ^0.18.1
@@ -59,9 +59,9 @@ dependencies:
   bubble: ^1.2.1
   timeago: ^3.6.0
   sqflite: ^2.3.2
-  geocoding: ^2.1.1
+  geocoding: ^3.0.0
   maps_toolkit: ^3.0.0
-  geolocator: ^10.1.0
+  geolocator: ^12.0.0
   path_provider: ^2.1.2
 
 dev_dependencies:
@@ -73,7 +73,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^3.0.1
+  flutter_lints: ^4.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
